@@ -1,7 +1,10 @@
-[gd_scene load_steps=14 format=3 uid="uid://bybqjugtbsejl"]
+[gd_scene load_steps=17 format=3 uid="uid://bybqjugtbsejl"]
 
 [ext_resource type="Script" uid="uid://7476nldpcwex" path="res://animation/gameOverLayer.gd" id="1_ujfv8"]
 [ext_resource type="Texture2D" uid="uid://dx4m58n70365r" path="res://images/icon.png" id="2_cmeym"]
+[ext_resource type="Texture2D" uid="uid://dypdc24rbeqjx" path="res://images/Tutorial/Lancer.png" id="3_vkfac"]
+[ext_resource type="Texture2D" uid="uid://csjcy358pvbs2" path="res://images/Tutorial/Scorer.png" id="4_1p4p8"]
+[ext_resource type="Texture2D" uid="uid://cjv2m8rdrny8x" path="res://images/Tutorial/Acheter.png" id="5_tirmx"]
 
 [sub_resource type="Animation" id="Animation_8etgh"]
 length = 4.0
@@ -258,17 +261,6 @@ Gianni SACCOCIO
 Lenny ANNIBALDI (Stagiaire)"
 label_settings = SubResource("LabelSettings_1p4p8")
 
-[node name="ClickToContinue" type="Label" parent="IntroScreen"]
-modulate = Color(1.353256, 1.353256, 1.353256, 1)
-offset_left = 335.0
-offset_top = 851.00006
-offset_right = 1168.0004
-offset_bottom = 918.00006
-scale = Vector2(1.5, 1.5)
-text = "Cliquer pour Commencer.."
-label_settings = SubResource("LabelSettings_vkfac")
-horizontal_alignment = 1
-
 [node name="RightLogo" type="Sprite2D" parent="IntroScreen"]
 position = Vector2(1714, 175.001)
 scale = Vector2(1.5, 1.5)
@@ -278,6 +270,35 @@ texture = ExtResource("2_cmeym")
 position = Vector2(222, 175.001)
 scale = Vector2(1.5, 1.5)
 texture = ExtResource("2_cmeym")
+
+[node name="Lancer" type="Sprite2D" parent="IntroScreen"]
+visible = false
+position = Vector2(959, 543)
+scale = Vector2(0.999, 0.999)
+texture = ExtResource("3_vkfac")
+
+[node name="Scorer" type="Sprite2D" parent="IntroScreen"]
+visible = false
+position = Vector2(959, 543)
+scale = Vector2(0.999, 0.999)
+texture = ExtResource("4_1p4p8")
+
+[node name="Acheter" type="Sprite2D" parent="IntroScreen"]
+visible = false
+position = Vector2(959, 543)
+scale = Vector2(0.999, 0.999)
+texture = ExtResource("5_tirmx")
+
+[node name="ClickToContinue" type="Label" parent="IntroScreen"]
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 335.0
+offset_top = 861.00006
+offset_right = 1168.0004
+offset_bottom = 928.00006
+scale = Vector2(1.5, 1.5)
+text = "Cliquer pour Poursuivre.."
+label_settings = SubResource("LabelSettings_vkfac")
+horizontal_alignment = 1
 
 [node name="Congratulation" type="Label" parent="."]
 visible = false

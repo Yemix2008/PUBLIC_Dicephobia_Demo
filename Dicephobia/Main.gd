@@ -890,6 +890,9 @@ func _ready(): # Au lancement du jeu
 	
 	# FIGHT
 	
-	while not Input.is_action_pressed("Select"): await wait(0.01)
+	for slide in range(4):
+		while not Input.is_action_just_pressed("Select"): await wait(0.01)
+		await wait(0.05)
+		GameOverLayer.nextSlide()
 	GameOverLayer.fade("Out")
 	revealFear()
