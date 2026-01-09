@@ -243,6 +243,15 @@ skeleton = NodePath("")
 
 [node name="World" type="Node" parent="."]
 
+[node name="Shortcut" type="Label3D" parent="World"]
+transform = Transform3D(1.2, 0, 0, 0, -5.2453668e-08, 1.2, 0, -1.2, -5.2453668e-08, -11.05, -0.75, 8.5)
+outline_modulate = Color(1, 1, 1, 1)
+text = "Tab - Info
+R - Abandon"
+font_size = 60
+outline_size = 7
+vertical_alignment = 0
+
 [node name="Lights" type="Node" parent="World"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="World/Lights"]

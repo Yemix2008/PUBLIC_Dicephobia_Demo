@@ -848,6 +848,15 @@ func _process(delta): # À chaque frame (delta)
 			QRtime = -999
 	elif QRtime != 0: QRtime = 0
 	
+	if Input.is_action_pressed("Tutorial") and GameOverLayer.slideNum == 4:
+		GameOverLayer.slideNum = 1
+		GameOverLayer.fade("In")
+		for slide in range(3):
+			while not Input.is_action_just_pressed("Select"): await wait(0.01)
+			await wait(0.05)
+			GameOverLayer.nextSlide()
+		GameOverLayer.fade("Out")
+	
 	# ADMIN INPUTS
 	
 	#if $Cameras/BalatroView.is_current(): # Si la Caméra Balatro est Active et Si Flèche du Bas est Pressé, Transitionne de la Caméra Balatro à la Caméra BR en 0,4 s

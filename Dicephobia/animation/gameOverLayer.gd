@@ -11,7 +11,7 @@ func fade(type: String, color: Color = Color(0,0,0)):
 	if $IntroScreen.visible: $IntroScreen.hide()
 	$Animation.play("fade" + type)
 	isDying = (type == "In")
-	if type == "In" and not color == Color(1,1,1):
+	if type == "In" and not color == Color(1,1,1) and slideNum != 1:
 		await get_tree().create_timer(2).timeout
 		$GameOverLabel.modulate = color
 		$RightLogoDeath.modulate = color
@@ -31,6 +31,10 @@ func fade(type: String, color: Color = Color(0,0,0)):
 		$Congratulation.show()
 		$RightLogoCongrats.show()
 		$LeftLogoCongrats.show()
+	elif slideNum == 1:
+		await get_tree().create_timer(1.2).timeout
+		$IntroScreen.show()
+		$IntroScreen/Lancer.show()
 
 func nextSlide():
 	if slideNum == 0:
