@@ -1,0 +1,146 @@
+[gd_scene load_steps=27 format=3 uid="uid://bt78pru3b031i"]
+
+[ext_resource type="PackedScene" uid="uid://bbfmi7dsaxo60" path="res://models/Toys/Airplane.glb" id="1_epx7j"]
+[ext_resource type="PackedScene" uid="uid://qm0leljh7jdl" path="res://models/Bed/Bed Twin.glb" id="2_cforh"]
+[ext_resource type="PackedScene" uid="uid://dyixuyfyyw2gw" path="res://models/Dart & Dartboard/Dartboard.glb" id="3_fvbpi"]
+[ext_resource type="PackedScene" uid="uid://duvrdamhe106m" path="res://models/Dart & Dartboard/Darts.glb" id="4_qeche"]
+[ext_resource type="PackedScene" uid="uid://bwc58jjvl2gdr" path="res://models/Nightstand/Nightstand _ Bedside Table.glb" id="5_2afa2"]
+[ext_resource type="PackedScene" uid="uid://bqikdljhdhdyb" path="res://models/Toys/Train.glb" id="6_5jyj8"]
+[ext_resource type="PackedScene" uid="uid://deat3i1v2hmh1" path="res://models/Toys/Robot.glb" id="7_kgjar"]
+[ext_resource type="PackedScene" uid="uid://cbj6trqfc3thg" path="res://models/Desk/Light Desk.glb" id="8_k3b0x"]
+[ext_resource type="PackedScene" uid="uid://cy5cyh6rjh3x0" path="res://models/Rug/Rug Round.glb" id="9_vb7c4"]
+[ext_resource type="PackedScene" uid="uid://ebv8deftt4ro" path="res://models/Toys/Etch-a-Sketch.glb" id="10_hmlkq"]
+[ext_resource type="PackedScene" uid="uid://b5l1gio7lutre" path="res://models/Window/Window Blinds.glb" id="11_0watv"]
+[ext_resource type="PackedScene" uid="uid://ppl7x5uqe73e" path="res://models/Window/Window Small.glb" id="12_i3gp8"]
+[ext_resource type="PackedScene" uid="uid://bftr5ochw267" path="res://models/Desk/Chair.glb" id="13_fotgq"]
+[ext_resource type="PackedScene" uid="uid://cgwoahlk57vxn" path="res://models/Desk/Desk Corner.glb" id="14_oqgfc"]
+[ext_resource type="PackedScene" uid="uid://b5sm0uo6gs357" path="res://models/Wardrobe & Bookshelf/Large Wardrobe.glb" id="15_yjaoc"]
+[ext_resource type="PackedScene" uid="uid://d15gleepbbt45" path="res://models/Wardrobe & Bookshelf/Books on Bookshelf.glb" id="16_qg7uu"]
+[ext_resource type="PackedScene" uid="uid://bgm2jqcocntl0" path="res://models/Window/window.glb" id="17_6denm"]
+[ext_resource type="PackedScene" uid="uid://b81ghxucfg0gl" path="res://models/Wooden Door.glb" id="18_22fr0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_03owx"]
+albedo_color = Color(0.5372549, 0.31764707, 0.16078432, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_fos0i"]
+material = SubResource("StandardMaterial3D_03owx")
+size = Vector3(15, 1, 15)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wkp8b"]
+albedo_color = Color(0.4392157, 0.41960785, 0.4117647, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_22fr0"]
+material = SubResource("StandardMaterial3D_wkp8b")
+size = Vector3(1, 1.5, 15)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ucktj"]
+material = SubResource("StandardMaterial3D_wkp8b")
+size = Vector3(1, 6.3, 15)
+
+[sub_resource type="BoxMesh" id="BoxMesh_suhd4"]
+material = SubResource("StandardMaterial3D_wkp8b")
+size = Vector3(1, 2.2, 1.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_6g5qi"]
+material = SubResource("StandardMaterial3D_wkp8b")
+size = Vector3(1, 2.2, 11.9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_3dxm6"]
+material = SubResource("StandardMaterial3D_wkp8b")
+size = Vector3(1, 10, 15)
+
+[node name="Chambre" type="Node"]
+
+[node name="Avion" parent="." instance=ExtResource("1_epx7j")]
+transform = Transform3D(-0.76604444, 0, -0.64278764, 0, 0.99999994, 0, 0.64278764, 0, -0.76604444, -68.240234, 19.143307, -57.77666)
+
+[node name="Lit" parent="." instance=ExtResource("2_cforh")]
+transform = Transform3D(-14, 0, 2.1139413e-06, 0, 14, 0, -2.1139413e-06, 0, -14, 0.7043648, -13.635521, 6.3221874)
+
+[node name="Fléchette" parent="." instance=ExtResource("3_fvbpi")]
+transform = Transform3D(-2.1855695e-07, 0, -5, 0, 5, 0, 5, 0, -2.1855695e-07, -33.497765, 12.241009, -119.14974)
+
+[node name="Darts" parent="Fléchette" instance=ExtResource("4_qeche")]
+transform = Transform3D(1.3999726, 0, -0.008796225, 0, 1.4000002, 0, 0.008796225, 0, 1.3999726, 0.3504963, -0.7110981, 0.04087925)
+
+[node name="Table de Chevet" parent="." instance=ExtResource("5_2afa2")]
+transform = Transform3D(0.027227327, 0, 14.999975, 0, 15, 0, -14.999975, 0, 0.027227327, -37.968307, -5.78752, 20.971773)
+
+[node name="Train" parent="." instance=ExtResource("6_5jyj8")]
+transform = Transform3D(-11.040213, 0, 10.154487, 0, 14.999999, 0, -10.154487, 0, -11.040213, -45.7205, -12.679153, -45.60969)
+
+[node name="Robot" parent="." instance=ExtResource("7_kgjar")]
+transform = Transform3D(-37.587704, 13.680803, -1.2629664e-06, 2.8607426, 7.8598223, -39.11572, -13.378362, -36.756752, -8.364249, 44.39627, -12.790554, -42.694748)
+
+[node name="Lampe de Bureau" parent="." instance=ExtResource("8_k3b0x")]
+transform = Transform3D(-0.0041884775, 0, -14.999998, 0, 14.999999, 0, 14.999998, 0, -0.0041884775, 71.25666, 0.28497767, -87.69161)
+
+[node name="Tapis" parent="." instance=ExtResource("9_vb7c4")]
+transform = Transform3D(25, 0, 0, 0, 25, 0, 0, 0, 25, -0.6742897, -13.162649, -70.350204)
+
+[node name="Dessin" parent="." instance=ExtResource("10_hmlkq")]
+transform = Transform3D(-0.027123356, -2.589992, -4.2768216, 4.9997263, -0.052358944, 0, -0.044785988, -4.2765856, 2.5901353, -8.089279, -3.4033318, -18.763983)
+
+[node name="Fenêtre 1" parent="." instance=ExtResource("11_0watv")]
+transform = Transform3D(13, 0, 0, 0, 13, 0, 0, 0, 13, 18.19019, 18.413328, -116.9011)
+
+[node name="Rideau" parent="Fenêtre 1" instance=ExtResource("12_i3gp8")]
+transform = Transform3D(1.5384614, 0, 0, 0, 1.5384614, 0, 0, 0, 1.5384614, -0.037936687, -0.84441674, -0.08788586)
+
+[node name="Chaise de Bureau" parent="." instance=ExtResource("13_fotgq")]
+transform = Transform3D(27.187418, 0, -22.041878, 0, 35, 0, 22.041878, 0, 27.187418, 54.805416, -13.530715, -93.81804)
+
+[node name="Bureau" parent="." instance=ExtResource("14_oqgfc")]
+transform = Transform3D(-34.992287, 0, 0.7348146, 0, 35, 0, -0.7348146, 0, -34.992287, 40.102123, -13.195394, -86.24035)
+
+[node name="Armoire" parent="." instance=ExtResource("15_yjaoc")]
+transform = Transform3D(-0.0054984093, 0, 15, 0, 14.999999, 0, -15, 0, -0.0054984093, -66.81383, -1.0784245, -44.87257)
+
+[node name="Bibliothèque" parent="." instance=ExtResource("16_qg7uu")]
+transform = Transform3D(-8.742278e-07, 0, 20, 0, 20, 0, -20, 0, -8.742278e-07, 68.4691, 4.417039, -37.184566)
+
+[node name="Fenètre 2" parent="." instance=ExtResource("17_6denm")]
+transform = Transform3D(-1.0490733e-06, 0, -24, 0, 24, 0, 24, 0, -1.0490733e-06, -73.840866, 23.325222, 5.188303)
+
+[node name="Sol" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0.27750397, -18.255402, -46.061752)
+mesh = SubResource("BoxMesh_fos0i")
+skeleton = NodePath("../..")
+
+[node name="Mur 1" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80.041, 38.883385, -46.902)
+mesh = SubResource("BoxMesh_22fr0")
+skeleton = NodePath("../..")
+
+[node name="Mur 5" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80.04053, -22.302967, -46.80569)
+mesh = SubResource("BoxMesh_ucktj")
+skeleton = NodePath("../..")
+
+[node name="Mur 7" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80.041, 20.329193, 20.993183)
+mesh = SubResource("BoxMesh_suhd4")
+skeleton = NodePath("../..")
+
+[node name="Mur 8" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80.041, 20.329193, -62.283398)
+mesh = SubResource("BoxMesh_6g5qi")
+skeleton = NodePath("../..")
+
+[node name="Mur 2" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 80, -4.0606813, -45.412)
+mesh = SubResource("BoxMesh_3dxm6")
+skeleton = NodePath("../..")
+
+[node name="Mur 3" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, 0, -4.009, -125)
+mesh = SubResource("BoxMesh_3dxm6")
+skeleton = NodePath("../..")
+
+[node name="Mur 4" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.371139e-07, 0, 10, 0, 10, 0, -10, 0, -4.371139e-07, 0.018283844, -3.9078722, 32.879143)
+mesh = SubResource("BoxMesh_3dxm6")
+skeleton = NodePath("../..")
+
+[node name="Porte" parent="." instance=ExtResource("18_22fr0")]
+transform = Transform3D(5.6433325, 0, 15.504929, 0, 16.5, 0, -15.504929, 0, 5.6433325, -57.73545, -13.137876, -119.08912)
