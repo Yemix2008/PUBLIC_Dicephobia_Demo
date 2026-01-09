@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="DieData" load_steps=2 format=3 uid="uid://daxdacw1yj6c"]
+
+[ext_resource type="Script" uid="uid://f0wekkcbgnmp" path="res://ressources/DieData/DieData.gd" id="1_3n7j1"]
+
+[resource]
+script = ExtResource("1_3n7j1")
+metadata/_custom_type_script = "uid://f0wekkcbgnmp"

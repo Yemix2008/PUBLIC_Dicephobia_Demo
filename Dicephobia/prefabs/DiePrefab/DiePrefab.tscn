@@ -1,0 +1,126 @@
+[gd_scene load_steps=14 format=3 uid="uid://4jpx7ulbvqhn"]
+
+[ext_resource type="Script" uid="uid://bvwgc84f1tnql" path="res://prefabs/DiePrefab/DiePrefab.gd" id="1_75vwp"]
+[ext_resource type="PackedScene" uid="uid://ceu2myjfin8dd" path="res://models/Dice/D10.glb" id="3_8608j"]
+[ext_resource type="PackedScene" uid="uid://c748k5cdtk3on" path="res://models/Dice/D2.glb" id="4_ntjqg"]
+[ext_resource type="Texture2D" uid="uid://ct5rew8g4sj2p" path="res://images/D6/D6_Normal_2.png" id="4_ucso1"]
+[ext_resource type="PackedScene" uid="uid://dl0ib6bn43srs" path="res://models/Dice/D4.glb" id="5_ghfmd"]
+[ext_resource type="Texture2D" uid="uid://dfg8aw36pi5it" path="res://images/D6/D6_Normal_5.png" id="5_yosan"]
+[ext_resource type="PackedScene" uid="uid://bhmncqxlco47p" path="res://models/Dice/D20.glb" id="6_hsewt"]
+[ext_resource type="Texture2D" uid="uid://caxxcqbpbq8td" path="res://images/D6/D6_Normal_3.png" id="6_rcyk2"]
+[ext_resource type="Texture2D" uid="uid://crrbh3xnauq2n" path="res://images/D6/D6_Normal_4.png" id="7_t3bgc"]
+[ext_resource type="Texture2D" uid="uid://beb2y3yv225ma" path="res://images/D6/D6_Normal_6.png" id="8_qglbx"]
+[ext_resource type="Texture2D" uid="uid://du2dn6whx0h1j" path="res://images/D6/D6_Normal_1.png" id="9_byo44"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_7gupv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_31vo2"]
+
+[node name="DiePrefab" type="Node3D"]
+script = ExtResource("1_75vwp")
+
+[node name="PriceLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0.85, -0.5)
+visible = false
+pixel_size = 0.015
+billboard = 1
+modulate = Color(0.925, 0.918, 0, 1)
+outline_modulate = Color(0, 0, 0, 0)
+text = "Prix
+"
+
+[node name="ScoreLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.85, 0)
+visible = false
+pixel_size = 0.01
+billboard = 1
+text = "Score"
+font_size = 124
+outline_size = 48
+text_direction = 1
+
+[node name="D2" parent="." instance=ExtResource("4_ntjqg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.1697202, 0)
+visible = false
+
+[node name="D2Light" type="SpotLight3D" parent="D2"]
+transform = Transform3D(1, 8.482652e-19, -1.9462904e-11, 1.9462904e-11, -4.3583693e-08, 1, 0, -1, -4.3583693e-08, 0, 7.67, 0)
+light_energy = 2.0
+spot_range = 6.0
+spot_angle = 20.0
+
+[node name="D4" parent="." instance=ExtResource("5_ghfmd")]
+transform = Transform3D(0.24999999, 0, -0.43301272, 0, 0.5, 0, 0.43301272, 0, 0.24999999, 0, -0.70747966, -0.15748051)
+visible = false
+
+[node name="D4Light" type="SpotLight3D" parent="D4"]
+transform = Transform3D(0.99999994, -1.7320509, -7.550864e-08, 3.8925807e-11, -8.7167386e-08, 2, -1.7320509, -0.99999994, -4.3549978e-08, 0.273, 10.415, 0.157)
+light_energy = 2.0
+spot_range = 6.0
+spot_angle = 20.0
+
+[node name="D6" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("BoxMesh_7gupv")
+
+[node name="D6Light" type="SpotLight3D" parent="D6"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 5, 0)
+light_energy = 2.0
+spot_range = 6.0
+spot_angle = 20.0
+
+[node name="Face Av" type="Sprite3D" parent="D6"]
+transform = Transform3D(0.42, 0, 0, 0, 0.42, 0, 0, 0, 0.42, 0, 0, 0.501)
+visible = false
+texture = ExtResource("4_ucso1")
+
+[node name="Face Ar" type="Sprite3D" parent="D6"]
+transform = Transform3D(-0.42, 0, 3.6717566e-08, 0, 0.42, 0, -3.6717566e-08, 0, -0.42, 0, 0, -0.501)
+visible = false
+texture = ExtResource("5_yosan")
+
+[node name="Face G" type="Sprite3D" parent="D6"]
+transform = Transform3D(-1.8358781e-08, 0, -0.42, 0, 0.42, 0, 0.42, 0, -1.8358781e-08, -0.501, 0, 0)
+visible = false
+texture = ExtResource("6_rcyk2")
+
+[node name="Face D" type="Sprite3D" parent="D6"]
+transform = Transform3D(-1.8358783e-08, 0, 0.42, 0, 0.42, 0, -0.42, 0, -1.8358783e-08, 0.501, 0, 0)
+visible = false
+texture = ExtResource("7_t3bgc")
+
+[node name="Face H" type="Sprite3D" parent="D6"]
+transform = Transform3D(0.42, 6.3418234e-08, -3.671757e-08, 3.6717566e-08, 1.8358786e-08, 0.42, 6.3418234e-08, -0.42, 1.8358781e-08, 0, 0.501, 0)
+visible = false
+texture = ExtResource("8_qglbx")
+
+[node name="Face B" type="Sprite3D" parent="D6"]
+transform = Transform3D(0.42, 0, 0, 0, -1.8358783e-08, 0.42, 0, -0.42, -1.8358783e-08, 0, -0.501, 0)
+visible = false
+texture = ExtResource("9_byo44")
+
+[node name="D10" parent="." instance=ExtResource("3_8608j")]
+transform = Transform3D(0.24512507, -0.0006930769, 1.07234, 0.0031101727, 1.0999956, 2.1900133e-10, -1.0723358, 0.003031966, 0.24512605, 0.2, -3.419279, 0.05)
+visible = false
+
+[node name="D10Light" type="SpotLight3D" parent="D10"]
+transform = Transform3D(0.20258272, 0.88622797, 0.0025704291, -0.00057279086, -0.002505797, 0.9090873, 0.88623154, -0.20258352, -8.636546e-09, 0.025435694, 7.6538486, -0.18737549)
+light_energy = 2.0
+spot_range = 6.0
+spot_angle = 20.0
+
+[node name="D20" parent="." instance=ExtResource("6_hsewt")]
+transform = Transform3D(-0.9563047, 0, -0.29237178, 0, 1, 0, 0.29237178, 0, -0.9563047, -0.00074875355, -1.8656011, 0)
+visible = false
+
+[node name="D20Light" type="SpotLight3D" parent="D20"]
+transform = Transform3D(-0.9563047, -0.29237178, -1.2724029e-08, 1.9462904e-11, -4.3583693e-08, 1, -0.29237178, 0.9563047, 4.1684984e-08, -0.0007160245, 6.865601, -0.00021890293)
+light_energy = 2.0
+spot_range = 6.0
+spot_angle = 20.0
+
+[node name="Body" type="StaticBody3D" parent="."]
+
+[node name="Collider" type="CollisionShape3D" parent="Body"]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
+shape = SubResource("BoxShape3D_31vo2")

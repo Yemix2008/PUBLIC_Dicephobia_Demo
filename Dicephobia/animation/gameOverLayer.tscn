@@ -1,0 +1,317 @@
+[gd_scene load_steps=14 format=3 uid="uid://bybqjugtbsejl"]
+
+[ext_resource type="Script" uid="uid://7476nldpcwex" path="res://animation/gameOverLayer.gd" id="1_ujfv8"]
+[ext_resource type="Texture2D" uid="uid://dx4m58n70365r" path="res://images/icon.png" id="2_cmeym"]
+
+[sub_resource type="Animation" id="Animation_8etgh"]
+length = 4.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BlackScreen:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("RestartButton:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("BlackScreen:color")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0, 0, 0, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_cmeym"]
+resource_name = "fadeIn"
+length = 1.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BlackScreen:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(0, 0, 0, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_ujfv8"]
+resource_name = "fadeOut"
+length = 3.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BlackScreen:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 1), Color(0, 0, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2epv3"]
+_data = {
+&"RESET": SubResource("Animation_8etgh"),
+&"fadeIn": SubResource("Animation_cmeym"),
+&"fadeOut": SubResource("Animation_ujfv8")
+}
+
+[sub_resource type="LabelSettings" id="LabelSettings_ujfv8"]
+line_spacing = 1.0
+paragraph_spacing = 1.0
+font_size = 128
+font_color = Color(1, 0, 0, 0)
+outline_size = 12
+
+[sub_resource type="LabelSettings" id="LabelSettings_cmeym"]
+font_size = 64
+
+[sub_resource type="LabelSettings" id="LabelSettings_8etgh"]
+font_size = 64
+
+[sub_resource type="LabelSettings" id="LabelSettings_2epv3"]
+paragraph_spacing = -12.0
+font_size = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_1p4p8"]
+paragraph_spacing = -12.0
+font_size = 24
+
+[sub_resource type="LabelSettings" id="LabelSettings_vkfac"]
+font_size = 42
+
+[sub_resource type="LabelSettings" id="LabelSettings_tirmx"]
+paragraph_spacing = -12.0
+font_size = 34
+
+[node name="GameOverLayer" type="CanvasLayer"]
+script = ExtResource("1_ujfv8")
+
+[node name="BlackScreen" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Animation" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_2epv3")
+}
+
+[node name="GameOverLabel" type="Label" parent="."]
+visible = false
+modulate = Color(1.8247963, 0, 0, 1)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -550.0
+offset_top = -350.0
+offset_right = 185.0
+offset_bottom = -174.99939
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.5, 1.367)
+text = "EXHAUSTED"
+label_settings = SubResource("LabelSettings_ujfv8")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RestartButton" type="Button" parent="."]
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 693.0
+offset_top = 634.0
+offset_right = 1235.0
+offset_bottom = 703.5
+focus_mode = 0
+disabled = true
+flat = true
+
+[node name="QuitButton" type="Button" parent="."]
+modulate = Color(1.353256, 1.353256, 1.353256, 0)
+offset_left = 810.00006
+offset_top = 777.0
+offset_right = 1114.305
+offset_bottom = 837.24
+scale = Vector2(0.98966396, 1)
+focus_mode = 0
+disabled = true
+flat = true
+
+[node name="FightBack" type="Label" parent="."]
+visible = false
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 685.0
+offset_top = 599.0
+offset_right = 1052.0
+offset_bottom = 687.0
+scale = Vector2(1.5, 1.5)
+text = "FIGHT BACK"
+label_settings = SubResource("LabelSettings_cmeym")
+
+[node name="GiveUp" type="Label" parent="."]
+visible = false
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 807.0
+offset_top = 749.0
+offset_right = 1053.0
+offset_bottom = 837.0
+scale = Vector2(1.25, 1.25)
+text = "GIVE UP"
+label_settings = SubResource("LabelSettings_8etgh")
+
+[node name="RightLogoDeath" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1714, 280)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_cmeym")
+
+[node name="LeftLogoDeath" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(222, 280)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_cmeym")
+
+[node name="IntroScreen" type="MeshInstance2D" parent="."]
+
+[node name="Dicephobia" type="Label" parent="IntroScreen"]
+modulate = Color(1.825, 1.825, 1.825, 1)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 382.5
+offset_top = 45.0
+offset_right = 1151.5002
+offset_bottom = 220.00061
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.5, 1.367)
+text = "DICEPHOBIA"
+label_settings = SubResource("LabelSettings_ujfv8")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Intro" type="Label" parent="IntroScreen"]
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 335.0
+offset_top = 335.0
+offset_right = 1168.0004
+offset_bottom = 635.0
+scale = Vector2(1.5, 1.5)
+text = "La nuit tombe et vos yeux se ferment, le sommeil arrive…
+seulement.. des peurs que vous croyez oubliés ressurgissent.
+
+Ici les phobies ne murmurent pas, elles imposent leurs règles,
+déforment la réalité et teste votre volonté de vous réveiller.
+
+Il ne reste alors qu'un fragile jeu pour contrer l'effroi,
+lancer les dés, provoquer le hasard, en esperant
+tenir tête à ce qui se nourrit de vos craintes.
+
+Le cauchemar a commencé..
+Bienvenue dans votre Dicephobie !"
+label_settings = SubResource("LabelSettings_2epv3")
+horizontal_alignment = 1
+
+[node name="Credits" type="Label" parent="IntroScreen"]
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 23.0
+offset_top = 788.0
+offset_right = 421.0
+offset_bottom = 932.0
+scale = Vector2(1.5, 1.5)
+text = "Un Jeu développer par..
+Alexandre KERMEL
+Diego GOMEZ
+Gianni SACCOCIO
+Lenny ANNIBALDI (Stagiaire)"
+label_settings = SubResource("LabelSettings_1p4p8")
+
+[node name="ClickToContinue" type="Label" parent="IntroScreen"]
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 335.0
+offset_top = 851.00006
+offset_right = 1168.0004
+offset_bottom = 918.00006
+scale = Vector2(1.5, 1.5)
+text = "Cliquer pour Commencer.."
+label_settings = SubResource("LabelSettings_vkfac")
+horizontal_alignment = 1
+
+[node name="RightLogo" type="Sprite2D" parent="IntroScreen"]
+position = Vector2(1714, 175.001)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_cmeym")
+
+[node name="LeftLogo" type="Sprite2D" parent="IntroScreen"]
+position = Vector2(222, 175.001)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_cmeym")
+
+[node name="Congratulation" type="Label" parent="."]
+visible = false
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
+offset_left = 155.0
+offset_top = 210.0
+offset_right = 1242.0
+offset_bottom = 637.0
+scale = Vector2(1.5, 1.5)
+text = "Alors que votre Dicephobie retourne enfin dans les ténèbres,
+les premiers rayons du jour tranversent les rideaux.
+
+Vous entendez les voix claires de vos parents qui percent le calme,
+le cauchemar est fini, allez les rejoindre ! Vous l'avez bien mérité..
+
+
+Félicitation !
+
+Vous venez de terminez la DEMO de Dicephobia
+Merci infiniment d'avoir jouer !"
+label_settings = SubResource("LabelSettings_tirmx")
+horizontal_alignment = 1
+
+[node name="RightLogoCongrats" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(1714, 739.855)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_cmeym")
+
+[node name="LeftLogoCongrats" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(222, 739.855)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_cmeym")
+
+[connection signal="pressed" from="RestartButton" to="." method="restartPressed"]
+[connection signal="pressed" from="QuitButton" to="." method="quitPressed"]
