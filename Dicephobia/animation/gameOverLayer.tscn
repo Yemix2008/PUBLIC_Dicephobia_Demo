@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://7476nldpcwex" path="res://animation/gameOverLayer.gd" id="1_ujfv8"]
 [ext_resource type="Texture2D" uid="uid://dx4m58n70365r" path="res://images/icon.png" id="2_cmeym"]
-[ext_resource type="Texture2D" uid="uid://dypdc24rbeqjx" path="res://images/Tutorial/Lancer.png" id="3_vkfac"]
-[ext_resource type="Texture2D" uid="uid://csjcy358pvbs2" path="res://images/Tutorial/Scorer.png" id="4_1p4p8"]
-[ext_resource type="Texture2D" uid="uid://cjv2m8rdrny8x" path="res://images/Tutorial/Acheter.png" id="5_tirmx"]
+[ext_resource type="Texture2D" uid="uid://beygfoqhvlmhl" path="res://images/Tutorial/Lancer.png" id="3_vkfac"]
+[ext_resource type="Texture2D" uid="uid://jpgktnpq48lh" path="res://images/Tutorial/Scorer.png" id="4_1p4p8"]
+[ext_resource type="Texture2D" uid="uid://xx5mif671cvo" path="res://images/Tutorial/Acheter.png" id="5_tirmx"]
 
 [sub_resource type="Animation" id="Animation_8etgh"]
 length = 4.0
@@ -233,16 +233,16 @@ offset_right = 1168.0004
 offset_bottom = 635.0
 scale = Vector2(1.5, 1.5)
 text = "La nuit tombe et vos yeux se ferment, le sommeil arrive…
-seulement.. des peurs que vous croyez oubliés ressurgissent.
+seulement... des peurs que vous croyez oubliées ressurgissent.
 
 Ici les phobies ne murmurent pas, elles imposent leurs règles,
-déforment la réalité et teste votre volonté de vous réveiller.
+déforment la réalité et testent votre volonté de vous réveiller.
 
-Il ne reste alors qu'un fragile jeu pour contrer l'effroi,
-lancer les dés, provoquer le hasard, en esperant
+Il ne reste alors qu'un fragile jeu pour contrer l'effroi :
+lancer les dés, provoquer le hasard, en espérant
 tenir tête à ce qui se nourrit de vos craintes.
 
-Le cauchemar a commencé..
+Le cauchemar a commencé...
 Bienvenue dans votre Dicephobie !"
 label_settings = SubResource("LabelSettings_2epv3")
 horizontal_alignment = 1
@@ -296,7 +296,7 @@ offset_top = 861.00006
 offset_right = 1168.0004
 offset_bottom = 928.00006
 scale = Vector2(1.5, 1.5)
-text = "Cliquer pour Poursuivre.."
+text = "Cliquer pour Poursuivre"
 label_settings = SubResource("LabelSettings_vkfac")
 horizontal_alignment = 1
 

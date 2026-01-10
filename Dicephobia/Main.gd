@@ -28,6 +28,12 @@ const peniaphobiePNG = preload("res://images/Fears/Peniaphobie.png")
 
 const dicephobiePNG = preload("res://images/Fears/Dicephobie.png")
 
+#SONS
+
+@onready var goldSound: AudioStreamPlayer = $Sounds/GoldSound
+@onready var holyGrenadeSound: AudioStreamPlayer = $Sounds/HolyGrenadeSound
+@onready var cashSound: AudioStreamPlayer = $Sounds/CashSound
+
 # ENCYCLOPEDIA
 
 var All={
@@ -57,10 +63,10 @@ var All={
 			},
 		"Morph":
 			{
-			"Ultrakill":{"Nom":"Ultrakill","Prix":2, "NbFace":2 ,"Text":"Ajoute 1 au mult\ns'il score 2 sinon\nil score 0"},
-			"Joker":{"Nom":"Joker","Prix":2, "NbFace":4 ,"Text":"Annule la règle\nde la peur pour le\nprochain lancer\ns'il score 4"},
-			"R. Dechu":{"Nom":"R. Dechu","Prix":5,"NbFace":6 ,"Text":"Copie le score du\ndé à sa gauche"},
-			"Holy Gr.":{"Nom":"Holy Gr.","Prix":1,"NbFace":10 ,"Text":"Score 10 mais\ns'autodétruit"}
+			"Ultrakill":{"Nom":"Ultrakill","Prix":2, "NbFace":2 ,"Text":"Ajoute 1 au mult\ns'il tombe sur 2\nsinon il score 0"},
+			"Jimbo":{"Nom":"Jimbo","Prix":2, "NbFace":4 ,"Text":"Annule la règle\nde la peur pour le\nprochain lancer\ns'il tombe sur 4"},
+			"R. Dechu":{"Nom":"R. Dechu","Prix":5,"NbFace":6 ,"Text":"Copie le résultat\ndu dé à sa gauche"},
+			"Holy Gr.":{"Nom":"Holy Gr.","Prix":1,"NbFace":10 ,"Text":"Ne tombe que\nsur 10 mais\ns'autodétruit"}
 			},
 		"Augment":
 			{
@@ -93,7 +99,7 @@ var diceSorted: Array = [] # Dé(s) en Jeu Trié(s)
 var rollNum: int = 0 # Nombre de Lancé ce Tour
 var rolls: Dictionary = {} # Dé(s) Lancé(s) -> Résultat(s)
 var rollsSorted: Array = [] # Résultat Trié dans l'ordre Croissant
-var jokerCountdown: int = 0 # Est ce que le dé joker est actif
+var jimboCountdown: int = 0 # Est ce que le dé jimbo est actif
 var viegoCrown = null # Copie du dé de gauche (morph viego le goat)
 
 var score: int = 0 # Score
@@ -101,6 +107,7 @@ var mult: int = 1 # Multiplicateur de Score
 var comb: Dictionary = {} # Main Obtenu
 
 @export var playerGold: int = 3 # Argent du Joueur
+var playerGoldIsIncreasing: bool = false
 
 # SHOP
 
@@ -142,7 +149,7 @@ func RNG(source, type: String, amount: int): # Tire au Sort (amount) élément(s
 	
 	return result
 
-func createDie(dieName: String, dieMorph: String, dieSides: Array, dieAugment: Array, diePrice: int, diceList: Array): # Créé un Dé avec les charactéristiques (name, morph, sides, augment, price) et le Sauvegarde dans (diceList) 
+func createDie(dieName: String, dieMorph: Array, dieSides: Array, dieAugment: Array, diePrice: int, diceList: Array): # Créé un Dé avec les charactéristiques (name, morph, sides, augment, price) et le Sauvegarde dans (diceList) 
 	var dieData: DieData = DieData.new()
 	dieData.name = dieName
 	dieData.morph = dieMorph
@@ -169,6 +176,7 @@ func moveDie(dieToMove: DieData, fromDiceList: Array, toDiceList: Array): # Dép
 	elif dieStatus == "Bought":
 		fromDiceList[fromDiceList.find(dieToMove)] = null
 		playerGold -= dieToMove.price
+		#cashSound.play()
 		valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
 		diceInGame[dieToMove].ShowLabel("Price", "")
 	
@@ -192,33 +200,42 @@ func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
 		if diceList == diceSorted:
 			await wait(0.1)
 			diceInGame[die].ShowLabel("Score", str(1))
-			valueAnimation(diceInGame[die].get_node("ScoreLabel"),0 if die.morph == "Ultrakill" else 1,rolls[die],0.2) 
+			valueAnimation(diceInGame[die].get_node("ScoreLabel"),0 if die.morph[0] == "Ultrakill" else 1,rolls[die],0.2) 
 			valueAnimation($GUI/ScoreDie1/Score1,score,score+rolls[die]*2 if (die.augment[0] == "Cristal" and die.augment[1] >= rolls[die]) else score+rolls[die],0.8)
-			if die.augment[0] == "Or" and die.augment[1] >= rolls[die]: valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,playerGold,playerGold+rolls[die],0.4)
-			if die.morph == "Joker" and rolls[die] == 4: jokerCountdown = 2
+			if die.augment[0] == "Or" and die.augment[1] >= rolls[die]: 
+				playerGoldIsIncreasing = true
+				valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,playerGold,playerGold+rolls[die],0.4)
+				playerGoldIsIncreasing = false
 			if comb.has(diceList.find(die)):
 				await wait(0.2)
 				$GUI/Comb.text = comb[diceList.find(die)] + " !"
 				await slideAnimation($GUI/Comb, "Décélération", "x", 0, -2.5, 12, 0.012)
 				await slideAnimation($GUI/Comb, "Accélération", "x", -2.5, 9.75 if $GUI/Comb.text == "Suite !" else 9.4 if $GUI/Comb.text == "Carré !" else 8.1 if $GUI/Comb.text == "Brelan !" else 9.65 if $GUI/Comb.text == "Paire !" else 4.1 if $GUI/Comb.text == "Double Paire !" else -2.5, 8, 0.008)
-				if die.morph == "Ultrakill": mult+=1
 				if $GUI/Comb.text == "Paire !" or $GUI/Comb.text == "Double Paire !" or $GUI/Comb.text == "Carré !": 
-					if allFears[fearNum]["Name"] == "Cataptrophobie" and jokerCountdown != 1: mult = 0
-					else: mult += 2 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jokerCountdown != 1) else 1
-				elif $GUI/Comb.text == "Brelan !": mult += 2 if (allFears[fearNum]["Name"] == "Cataptrophobie" and jokerCountdown != 1) else 1
-				elif $GUI/Comb.text == "Suite !": mult += diceSorted.size() if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jokerCountdown != 1) else diceSorted.size() - 1 
+					if allFears[fearNum]["Name"] == "Cataptrophobie" and jimboCountdown != 1: mult = 0
+					else: mult += 2 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jimboCountdown != 1) else 1
+				elif $GUI/Comb.text == "Brelan !": mult += 2 if (allFears[fearNum]["Name"] == "Cataptrophobie" and jimboCountdown != 1) else 1
+				elif $GUI/Comb.text == "Suite !": mult += diceSorted.size() if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jimboCountdown != 1) else diceSorted.size() - 1 
 				$GUI/MultDie/Mult.text = "x" + str(mult)
 				$GUI/Comb.position.x = 0
 				$GUI/Comb.text = ""
-			score += rolls[die]*2 if (die.augment[0] == "Cristal" and die.augment[1] >= rolls[die]) else rolls[die]
+			score += rolls[die]*2 if (die.augment[0] == "Cristal" and die.augment[1] >= rolls[die]) else rolls[die] # Augments
 			playerGold += rolls[die] if (die.augment[0] == "Or" and die.augment[1] >= rolls[die]) else 0
+			
+			if die.morph[0] == "Jimbo" and rolls[die] == 4: jimboCountdown = 2 # Morphs
+			if die.morph[0] == "Jimbo" and jimboCountdown > 0: jimboCountdown -= 1
+			if die.morph[0] == "Ultrakill" and rolls[die] == 2:
+				mult += 1
+				$GUI/MultDie/Mult.text = "x" + str(mult)
+			if die.morph[0] == "R. Dechu" and die.morph[1] != null : die.morph[1] = null
 		if secUntilNext != 0: await wait(secUntilNext)
-		if die.morph == "Holy Gr.":
-			diceSorted.erase(die)
-			diceInGame[die].queue_free()
-			diceInGame.erase(die)
-		if jokerCountdown > 0: jokerCountdown-=1	
-		if die.morph == "R. Dechu" and viegoCrown != null : viegoCrown = null
+	if diceList == diceSorted:
+		for die in diceList:
+			if die.morph[0] == "Holy Gr.":
+				holyGrenadeSound.play()
+				diceSorted.erase(die)
+				diceInGame[die].queue_free()
+				diceInGame.erase(die)
 		
 func actualizeDicePrice():
 	for dieData in diceInGame:
@@ -226,10 +243,11 @@ func actualizeDicePrice():
 		else: diceInGame[dieData].get_node("PriceLabel").modulate = Color(0.925, 0.918, 0.0)
 
 func applyMorph(die):
-	if diePlayedInShop == [] or diePlayedInShop[0].morph != "Normale" or len(diePlayedInShop[0].sides) != len(targetedDie.sides): return
+	if diePlayedInShop == [] or diePlayedInShop[0].morph[0] != "Normale" or len(diePlayedInShop[0].sides) != len(targetedDie.sides): return # or diePlayedInShop[0].morph[0] == shop["Morphs"] à verifier
 	else:
 		playerGold -= die.price
-		diePlayedInShop[0].morph = die.morph
+		#cashSound.play()
+		diePlayedInShop[0].morph[0] = die.morph[0]
 		if toUntargetDice.has(die): toUntargetDice.erase(die)
 		shop["Morphs"].erase(die)
 		diceInGame[die].queue_free()
@@ -354,6 +372,8 @@ func valueAnimation(label: Label3D, startValue: int, endValue: int, duration: fl
 			$FearHealthBar/FearHealth.scale.x = ratio
 			$FearHealthBar/FearHealth.position.x = 7 - ratio * 7
 		
+		#elif label == $World/Boards/BottomRight/PiggyBank/PlayerGold:if playerGoldIsIncreasing == true: goldSound.play()
+
 		label.text = str(currentValue % 10) if (label == $GUI/ScoreDie1/Score1) else "x" + str(currentValue) if (label == $GUI/MultDie/Mult) else str(currentValue) + "/" + str(fearMaxHealth) + " PV" if (label == $FearHealthBar/Health) else str(currentValue) + " Phobie restante.." if (label == $FearHealthBar/FearLeftNb and currentValue <= 1) else str(currentValue) + " Phobies restantes.." if (label == $FearHealthBar/FearLeftNb and currentValue > 1) else str(currentValue)
 		if isDie: label.modulate = Color(1.0,1.0,0.0) if (label.get_parent().data.augment[0] == "Or" and label.get_parent().data.augment[1] >= int(label.text)) else Color(0.360,0.825,1) if (label.get_parent().data.augment[0] == "Cristal" and label.get_parent().data.augment[1] >= int(label.text)) else Color(1.0,1.0,1.0)
 		currentValue += direction
@@ -374,7 +394,7 @@ func shopAnimation():
 func revealFear(): # Intro de la Peur
 	
 	fearMaxHealth = 6 if (fearNum == 0) else 10 if (fearNum == 1) else 16 if (fearNum == 2) else 24 if (fearNum == 3) else 34 if (fearNum == 4) else 46 if (fearNum == 5) else 60
-	if allFears[fearNum]["Name"] == "Atychiphobie" and jokerCountdown != 1: fearMaxHealth = int(float(fearMaxHealth) * 1.5)
+	if allFears[fearNum]["Name"] == "Atychiphobie" and jimboCountdown != 1: fearMaxHealth = int(float(fearMaxHealth) * 1.5)
 	$FearHealthBar/Health.text = str(fearCurrentHealth) + "/" + str(fearMaxHealth) + "PV"
 	
 	await wait(0.2)
@@ -385,7 +405,7 @@ func revealFear(): # Intro de la Peur
 		await wait(0.75)
 		revealDice(diceHand,0,0.08) # Intro Dés en Main
 	
-	valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,0,playerGold,0.3)
+	if $World/Boards/BottomRight/PiggyBank/PlayerGold.text != str(playerGold): valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
 	
 	await visibilityAnimation($FearHealthBar,"Show","Material",10)
 	await wait(0.6)
@@ -422,7 +442,7 @@ func createShop(): # Génère le Shop
 		var sides := []
 		for i in range(blankData["NbFace"]):
 			sides.append(i + 1)
-		createDie(blankData["Nom"],"Normale",sides,["Normales",0],blankData["Prix"],shop["Blanks"])
+		createDie(blankData["Nom"],["Normale",null],sides,["Normales",0],blankData["Prix"],shop["Blanks"])
 	spawnDice(shop["Blanks"])
 	for dieData in shop["Blanks"]: diceInGame[dieData].ShowLabel("Price", str(dieData.price))
 	
@@ -431,7 +451,7 @@ func createShop(): # Génère le Shop
 		var sides := []
 		for i in range(morphData["NbFace"]):
 			sides.append(i + 1)
-		createDie("D6",morphData["Nom"],sides,["Normales",0],morphData["Prix"],shop["Morphs"])
+		createDie("D6",[morphData["Nom"],null],sides,["Normales",0],morphData["Prix"],shop["Morphs"])
 	spawnDice(shop["Morphs"])
 	for dieData in shop["Morphs"]: diceInGame[dieData].ShowLabel("Price", str(dieData.price))
 	
@@ -453,7 +473,7 @@ func switchFear():
 func rollDice(): # Lance le(s) Dé(s)
 	buttonInGame["Roll"].Press("Roll")
 	
-	if dicePlayed == [] or (allFears[fearNum]["Name"] == "Agoraphobie" and len(dicePlayed) > 2 and jokerCountdown != 1): 
+	if dicePlayed == [] or (allFears[fearNum]["Name"] == "Agoraphobie" and len(dicePlayed) > 2 and jimboCountdown != 1): 
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,0.0,0.0))
 		await wait(0.3)
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,1.0,1.0))
@@ -465,19 +485,21 @@ func rollDice(): # Lance le(s) Dé(s)
 	rolls.clear()
 	rollsSorted.clear()
 	score = 0
-	mult = 1 if (allFears[fearNum]["Name"] != "Koinophobie" and jokerCountdown != 1) else 0
+	mult = 0 if (allFears[fearNum]["Name"] == "Koinophobie" and jimboCountdown != 1) else 1
 	comb = {}
 	
 	if $World/Boards/BottomLeft/Cellphone/PhoneScreen.visible: $World/Boards/BottomLeft/Cellphone/PhoneScreen.hide()
 	CameraTransition.transition_camera3D($Cameras/BalatroView, $Cameras/BRView, 0.5)
 	
-	if allFears[fearNum]["Name"] == "Nihilophobie" and rollNum % 2 == 1 and jokerCountdown != 1:
+	if allFears[fearNum]["Name"] == "Nihilophobie" and rollNum % 2 == 1 and jimboCountdown != 1:
 		for die in dicePlayed:
 			await wait(0.8)
 			diceInGame[die].PlayAnimation("Targeted", null)
 			await wait(0.05)
-			playerGold += floor((die.price/3)*2) if (floor((die.price/3)*2) != 0) else 1
+			playerGoldIsIncreasing = true
+			playerGold += int(floor((float(die.price)/3.0)*2.0)) if (int(floor((float(die.price)/3.0)*2.0)) != 0) else 1
 			valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
+			playerGoldIsIncreasing = false
 			
 			if toUntargetDice.has(die): toUntargetDice.erase(die)
 			diceInGame[die].queue_free()
@@ -485,19 +507,16 @@ func rollDice(): # Lance le(s) Dé(s)
 			dicePlayed = []
 		await wait(0.5)
 	else:
-		for die in dicePlayed: if die.morph == "R. Dechu" and dicePlayed.find(die) - 1 != -1 : viegoCrown = dicePlayed[dicePlayed.find(die) - 1]
+		for die in dicePlayed: if die.morph[0] == "R. Dechu" and dicePlayed.find(die) - 1 != -1 : die.morph[1] = dicePlayed[dicePlayed.find(die) - 1]
 		for die in dicePlayed: # Lancer Invisible
 			diceInGame[die].hide()
 			var RNGsides = die.sides.duplicate()
-			if die.augment[0] == "Void" and die.morph != "Holy Gr.":for face in range(die.augment[1]): RNGsides.erase(RNGsides[0])
-			if die.morph == "Holy Gr.": RNGsides = [10]
-			if die.morph == "Ultrakill": 
-				mult+=1
-				$GUI/MultDie/Mult.text = "x" + str(mult)
-				RNGsides[0] = 0
+			if die.morph[0] == "Holy Gr.": RNGsides = [10]
+			if die.morph[0] == "Ultrakill": RNGsides = [0,2]
+			if die.augment[0] == "Void" and die.morph[0] != "Holy Gr.": for face in range(die.augment[1]): RNGsides.erase(RNGsides[0])
 			RNGsides.shuffle()
-			rolls[die] = viegoCrown if (die.morph == "R. Dechu" and viegoCrown != null) else RNGsides[0]
-			if viegoCrown is DieData: viegoCrown = rolls[die]
+			rolls[die] = die.morph[1] if (die.morph[0] == "R. Dechu" and die.morph[1] != null) else RNGsides[0]
+			for otherDie in dicePlayed: if otherDie.morph[0] == "R. Dechu" : otherDie.morph[1] = rolls[die]
 		
 		rollsSorted = rolls.keys() # Trie Invisible
 		rollsSorted.sort_custom(func(a, b): return rolls[a] < rolls[b]) 
@@ -537,15 +556,15 @@ func rollDice(): # Lance le(s) Dé(s)
 		await wait(0.4) # Intro Score & Mult
 		slideAnimation($GUI/ScoreDie1, "Décélération", "y", 32.5, 0, 30, 0.03)
 		slideAnimation($GUI/MultDie, "Décélération", "y", 32.5, 0, 30, 0.03)
-		if allFears[fearNum]["Name"] == "Koinophobie" and jokerCountdown != 1: $GUI/MultDie/Mult.text = "x0"
+		$GUI/MultDie/Mult.text = "x0" if allFears[fearNum]["Name"] == "Koinophobie" and jimboCountdown != 1 else "x1"
 		
 		await wait(0.8) # Trie Affiché
 		await revealDice(diceSorted,0.05,0.4)
 		
-		if mult != 1 or (allFears[fearNum]["Name"] == "Koinophobie" and jokerCountdown != 1): # Animation Mult
+		if mult != 1 or (allFears[fearNum]["Name"] == "Koinophobie" and jimboCountdown != 1): # Animation Mult
 			await slideAnimation($GUI/MultDie, "Décélération", "x", 18.05, 19.55, 6, 0.012)
 			await slideAnimation($GUI/MultDie, "Accélération", "x", 19.55, 18.05, 4, 0.008)
-			valueAnimation($GUI/MultDie/Mult, mult, 0 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jokerCountdown != 1) else 1, 0.6)
+			valueAnimation($GUI/MultDie/Mult, mult, 0 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jimboCountdown != 1) else 1, 0.6)
 			await valueAnimation($GUI/ScoreDie1/Score1,score,score*mult,0.8)
 			score *= mult
 		
@@ -594,8 +613,10 @@ func rollDice(): # Lance le(s) Dé(s)
 			for die in diceHand: # Outro Dé(s) en Main Si Fear Morte
 				diceInGame[die].PlayAnimation("Targeted", null)
 				await wait(0.05)
-				playerGold += floor((die.price/3)*2) if (floor((die.price/3)*2) != 0) else 1
+				playerGold += int(floor((float(die.price)/3.0)*2.0)) if (int(floor((float(die.price)/3.0)*2.0)) != 0) else 1
+				playerGoldIsIncreasing = true
 				await valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.4)
+				playerGoldIsIncreasing = false
 				diceInGame[die].PlayAnimation("Untargeted", null)
 				await wait(0.5)
 			await spawnDice(diceInventory)
@@ -609,8 +630,9 @@ func rollDice(): # Lance le(s) Dé(s)
 		
 	await wait(0.2)
 	if fearCurrentHealth != 0:
-		if allFears[fearNum]["Name"] == "Peniaphobie" and jokerCountdown != 1 :
+		if allFears[fearNum]["Name"] == "Peniaphobie" and jimboCountdown != 1 :
 			playerGold -= rollNum*2
+			#cashSound.play()
 			valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
 		CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8)
 	
@@ -659,7 +681,7 @@ func gameOver():
 		elif object != $World/Boards/TopLeft/PostIt/FearText: object.light_color = Color(0.5,0.5,0.5)
 	
 	for die in range(4): # Créé 4 Dés et les Fait Spawner
-		createDie("D6","Normale",[1,2,3,4,5,6],["Normales",0],3,diceHand)
+		createDie("D6",["Normale",null],[1,2,3,4,5,6],["Normales",0],3,diceHand)
 	spawnDice(diceHand)
 	for die in diceHand: diceInGame[die].hide()
 	
@@ -686,23 +708,23 @@ func phoneInfo(object, type: String): # Affiche sur l'Écran du Tel les Info de 
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/Info.text = "DÉ À " + str(len(object.sides)) + " FACES"
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoSprite.texture = d2PNG if (len(object.sides) == 2) else d4PNG if (len(object.sides) == 4) else d6PNG if (len(object.sides) == 6) else d10PNG if (len(object.sides) == 10) else d20PNG if (len(object.sides) == 20) else placeHolderPNG
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoStatus.text = "\n\n\n\n\n\nStatut : " + dieStatus
-			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoMorph.text = "\n\n\n\n\n\n\nForme : Normale" if (object.morph == "Normale") else "\n\n\n\n\n\n\nForme : " + object.morph
+			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoMorph.text = "\n\n\n\n\n\n\nForme : Normale" if (object.morph[0] == "Normale") else "\n\n\n\n\n\n\nForme : " + object.morph[0]
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoAugment.text = "\n\n\n\n\n\n\n\nFaces : Normales" if (object.augment[0] == "Normales") else "\n\n\n\n\n\n\n\nFaces : " + object.augment[0] + " x" + str(object.augment[1])
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoPrice.text = "\n\n\n\n\n\n\n\n\nPrix : " + str(object.price) + " Pièces"
-			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoValue.text = "\n\n\n\n\n\n\n\n\n\nValeur : " + str(floor((object.price/3)*2)) + " Pièces" if (floor((object.price/3)*2) != 0) else "\n\n\n\n\n\n\n\n\n\nValeur : 1 Pièce"
+			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoValue.text = "\n\n\n\n\n\n\n\n\n\nValeur : " + str(int(floor((float((object.price)/3.0)*2.0)))) + " Pièces" if (int(floor((float((object.price)/3.0)*2.0))) != 0) else "\n\n\n\n\n\n\n\n\n\nValeur : 1 Pièce"
 		elif shop["Blanks"].has(object):
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/Info.text = "DÉ À " + str(len(object.sides)) + " FACES"
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoSprite.texture = d2PNG if (len(object.sides) == 2) else d4PNG if (len(object.sides) == 4) else d6PNG if (len(object.sides) == 6) else d10PNG if (len(object.sides) == 10) else d20PNG if (len(object.sides) == 20) else placeHolderPNG
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoStatus.text = "\n\n\n\n\n\nStatut : " + dieStatus
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoPrice.text = "\n\n\n\n\n\n\nPrix : " + str(object.price) + " Pièces"
-			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoValue.text = "\n\n\n\n\n\n\n\nValeur : " + str(floor((object.price/3)*2)) + " Pièces" if (floor((object.price/3)*2) != 0) else "\n\n\n\n\n\n\n\nValeur : 1 Pièce"
+			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoValue.text = "\n\n\n\n\n\n\n\nValeur : " + str(int(floor((float((object.price)/3.0)*2.0)))) + " Pièces" if (int(floor((float((object.price)/3.0)*2.0))) != 0) else "\n\n\n\n\n\n\n\nValeur : 1 Pièce"
 		elif shop["Morphs"].has(object):
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoSprite.hide()
-			$World/Boards/BottomLeft/Cellphone/PhoneScreen/Info.text = "ROI DECHU" + "\n\nSur Dé à " + str(len(object.sides)) + " Faces" if (object.morph == "R. Dechu") else "HOLY GRENADE" + "\n\nSur Dé à " + str(len(object.sides)) + " Faces" if (object.morph == "Holy Gr.") else object.morph.to_upper() + "\n\nSur Dé à " + str(len(object.sides)) + " Faces"
+			$World/Boards/BottomLeft/Cellphone/PhoneScreen/Info.text = "ROI DECHU" + "\n\nSur Dé à " + str(len(object.sides)) + " Faces" if (object.morph[0] == "R. Dechu") else "HOLY GRENADE" + "\n\nSur Dé à " + str(len(object.sides)) + " Faces" if (object.morph[0] == "Holy Gr.") else object.morph[0].to_upper() + "\n\nSur Dé à " + str(len(object.sides)) + " Faces"
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoStatus.text = "\n\n\nStatut : " + dieStatus
-			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoMorph.text = "\n\n\n\nDescription :\n" + All["Encyclopedia"]["Morph"][object.morph]["Text"]
+			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoMorph.text = "\n\n\n\nDescription :\n" + All["Encyclopedia"]["Morph"][object.morph[0]]["Text"]
 			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoPrice.text = "\n\n\n\n\n\n\n\n\nPrix : " + str(object.price) + " Pièces"
-			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoValue.text = "\n\n\n\n\n\n\n\n\n\nValeur : " + str(floor((object.price/3)*2)) + " Pièces" if (floor((object.price/3)*2) != 0) else "\n\n\n\n\n\n\n\n\n\nValeur : 1 Pièce"
+			$World/Boards/BottomLeft/Cellphone/PhoneScreen/InfoValue.text = "\n\n\n\n\n\n\n\n\n\nValeur : " + str(int(floor((float((object.price)/3.0)*2.0)))) + " Pièces" if (int(floor((float((object.price)/3.0)*2.0))) != 0) else "\n\n\n\n\n\n\n\n\n\nValeur : 1 Pièce"
 	elif type == "Bouton":
 		var buttonName = object.name
 		if buttonName == "RollButton": $World/Boards/BottomLeft/Cellphone/PhoneScreen/Info.text = "LANCER LES DÉS\n\nCe bouton sert à\nLancer les Dés\nSélectionnés à\nsa Gauche"
@@ -749,7 +771,11 @@ func _process(delta): # À chaque frame (delta)
 			else:
 				if diceHand.has(targetedDie) and len(diePlayedInShop) < 1:
 					moveDie(targetedDie, diceHand,diePlayedInShop)
-					valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), floor((diePlayedInShop[0].price/3)*2) if (floor((diePlayedInShop[0].price/3)*2) != 0) else 1, 0.3) # Affiche le Prix de Vente qui correspond au 2/3 du Prix du Dé (arrondi inferieur prcq mechant devs bouuhh)
+					valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), int(floor((float(diePlayedInShop[0].price)/3.0)*2.0)) if (int(floor((float(diePlayedInShop[0].price)/3.0)*2.0)) != 0) else 1, 0.3) # Affiche le Prix de Vente qui correspond au 2/3 du Prix du Dé (arrondi inferieur prcq mechant devs bouuhh)
+				elif diceHand.has(targetedDie) and len(diePlayedInShop) == 1:
+					moveDie(diePlayedInShop[0],diePlayedInShop,diceHand)
+					moveDie(targetedDie,diceHand,diePlayedInShop)
+					valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) if (floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) != 0) else 1, 0.3)
 				elif diePlayedInShop.has(targetedDie):
 					moveDie(targetedDie, diePlayedInShop,diceHand)
 					valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), 0, 0.1)
@@ -769,7 +795,7 @@ func _process(delta): # À chaque frame (delta)
 						rollDice()
 			else:
 				if buttonInGame["Augment"] == target("Button"):
-					if diePlayedInShop == [] or playerGold < shop["Augment"]["Prix"] or (diePlayedInShop[0].augment[0].to_upper() != shop["Augment"]["Nom"] and diePlayedInShop[0].augment[0] != "Normales") or ((diePlayedInShop[0].augment[1] >= (19 if (diePlayedInShop[0].morph == "R. Dechu") else len(diePlayedInShop[0].sides)-1)) and (shop["Augment"]["Nom"] == "OR" or shop["Augment"]["Nom"] == "VOID")) or ((diePlayedInShop[0].augment[1] >= (20 if (diePlayedInShop[0].morph == "R. Dechu") else len(diePlayedInShop[0].sides))) and shop["Augment"]["Nom"] == "CRISTAL"):
+					if diePlayedInShop == [] or playerGold < shop["Augment"]["Prix"] or (diePlayedInShop[0].augment[0].to_upper() != shop["Augment"]["Nom"] and diePlayedInShop[0].augment[0] != "Normales") or ((diePlayedInShop[0].augment[1] >= (19 if (diePlayedInShop[0].morph[0] == "R. Dechu") else len(diePlayedInShop[0].sides)-1)) and (shop["Augment"]["Nom"] == "OR" or shop["Augment"]["Nom"] == "VOID")) or ((diePlayedInShop[0].augment[1] >= (20 if (diePlayedInShop[0].morph[0] == "R. Dechu") else len(diePlayedInShop[0].sides))) and shop["Augment"]["Nom"] == "CRISTAL"):
 						buttonInGame["Augment"].ShowLabel("Augment",shop["Augment"]["Nom"],Color(0.5, 0.5, 0.5))
 						await wait(0.3)
 						buttonInGame["Augment"].ShowLabel("Augment",shop["Augment"]["Nom"],Color(1.0,1.0,1.0))
@@ -778,6 +804,7 @@ func _process(delta): # À chaque frame (delta)
 						if diePlayedInShop[0].augment[0] == "Normales": diePlayedInShop[0].augment[0] = "Or" if (shop["Augment"]["Nom"] == "OR") else "Cristal" if (shop["Augment"]["Nom"] == "CRISTAL") else "Void"
 						diePlayedInShop[0].augment[1] += 2 if diePlayedInShop[0].augment[0] == "Or" else 1
 						playerGold -= shop["Augment"]["Prix"]
+						#cashSound.play()
 						valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.4)
 						actualizeDicePrice()
 						await wait(0.3)
@@ -785,12 +812,14 @@ func _process(delta): # À chaque frame (delta)
 				elif buttonInGame["Sell"] == target("Button"):
 					if not diePlayedInShop == [] and not diceHand == []:
 						buttonInGame["Sell"].Press("Sell")
-						playerGold += floor((diePlayedInShop[0].price/3)*2) if (floor((diePlayedInShop[0].price/3)*2) != 0) else 1
+						playerGoldIsIncreasing = true
+						playerGold += floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) if (floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) != 0) else 1
 						diceInGame[diePlayedInShop[0]].queue_free() # Supprime le Node
 						diceInGame.erase(diePlayedInShop[0]) # Supprime la Data 
 						diePlayedInShop = [] # Supprime le Fantôme du Dé (AAAH POURQUOI FAUT SUPPRIMER 3 TRUCS DIFFERENTS C CHIANT)
 						valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), 0, 0.1)
 						valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.4)
+						playerGoldIsIncreasing = false
 						actualizeDicePrice() 
 				elif buttonInGame["Next"] == target("Button"): 
 					if not diePlayedInShop == []:
@@ -874,7 +903,7 @@ func _ready(): # Au lancement du jeu
 	# INITIAILSATION
 	
 	for die in range(4): # Créé 4 Dés et les Fait Spawner
-		createDie("D6","Normale",[1,2,3,4,5,6],["Normales",0],3,diceHand)
+		createDie("D6",["Normale",null],[1,2,3,4,5,6],["Normales",0],3,diceHand)
 	spawnDice(diceHand)
 	for die in diceHand: diceInGame[die].hide()
 	
