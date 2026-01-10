@@ -122,7 +122,8 @@ var isShopping: bool = false # Le Shop est-il Actif  ?
 # FEAR
 
 var allFears: Array = [] # Toutes les Peurs de la Run
-var fearNum: int = 0 # Numéro de la Peur Actuelle (0)
+var fearNum: int = 0 # Numéro de la Peur Actuelle
+var fearNumD: int = -1 # Numéro de la Forme de la Dicephobie
 var fearMaxHealth: int = 0 # Vie Maximale de la Peur
 var fearCurrentHealth: int = 0 # Vie Actuel de la Peur
 
@@ -212,10 +213,10 @@ func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
 				await slideAnimation($GUI/Comb, "Décélération", "x", 0, -2.5, 12, 0.012)
 				await slideAnimation($GUI/Comb, "Accélération", "x", -2.5, 9.75 if $GUI/Comb.text == "Suite !" else 9.4 if $GUI/Comb.text == "Carré !" else 8.1 if $GUI/Comb.text == "Brelan !" else 9.65 if $GUI/Comb.text == "Paire !" else 4.1 if $GUI/Comb.text == "Double Paire !" else -2.5, 8, 0.008)
 				if $GUI/Comb.text == "Paire !" or $GUI/Comb.text == "Double Paire !" or $GUI/Comb.text == "Carré !": 
-					if allFears[fearNum]["Name"] == "Cataptrophobie" and jimboCountdown != 1: mult = 0
-					else: mult += 2 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jimboCountdown != 1) else 1
-				elif $GUI/Comb.text == "Brelan !": mult += 2 if (allFears[fearNum]["Name"] == "Cataptrophobie" and jimboCountdown != 1) else 1
-				elif $GUI/Comb.text == "Suite !": mult += diceSorted.size() if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jimboCountdown != 1) else diceSorted.size() - 1 
+					if allFears[fearNum]["Name"] == "Cataptrophobie" and (jimboCountdown != 1 or fearNum == 6): mult = 0
+					else: mult += 2 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (jimboCountdown != 1 or fearNum == 6)) else 1
+				elif $GUI/Comb.text == "Brelan !": mult += 2 if (allFears[fearNum]["Name"] == "Cataptrophobie" and (jimboCountdown != 1 or fearNum == 6)) else 1
+				elif $GUI/Comb.text == "Suite !": mult += diceSorted.size() if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (jimboCountdown != 1 or fearNum == 6)) else diceSorted.size() - 1 
 				$GUI/MultDie/Mult.text = "x" + str(mult)
 				$GUI/Comb.position.x = 0
 				$GUI/Comb.text = ""
@@ -232,7 +233,7 @@ func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
 	if diceList == diceSorted:
 		for die in diceList:
 			if die.morph[0] == "Holy Gr.":
-				holyGrenadeSound.play()
+				#holyGrenadeSound.play()
 				diceSorted.erase(die)
 				diceInGame[die].queue_free()
 				diceInGame.erase(die)
@@ -334,7 +335,7 @@ func colorAnimation(lights: Array, color: Color, duration: float = 0.6):
 			tween.set_ease(Tween.EASE_IN_OUT)
 			tween.tween_property(light, "light_color", color, duration)
 
-func valueAnimation(label: Label3D, startValue: int, endValue: int, duration: float = 0.5):
+func valueAnimation(label: Label3D, startValue: int, endValue: int, duration: float = 0.5, rule: bool = false):
 	var steps = abs(endValue - startValue) + 1
 	var timeStep = duration / steps
 	var direction = sign(endValue - startValue)
@@ -374,9 +375,12 @@ func valueAnimation(label: Label3D, startValue: int, endValue: int, duration: fl
 		
 		#elif label == $World/Boards/BottomRight/PiggyBank/PlayerGold:if playerGoldIsIncreasing == true: goldSound.play()
 
-		label.text = str(currentValue % 10) if (label == $GUI/ScoreDie1/Score1) else "x" + str(currentValue) if (label == $GUI/MultDie/Mult) else str(currentValue) + "/" + str(fearMaxHealth) + " PV" if (label == $FearHealthBar/Health) else str(currentValue) + " Phobie restante.." if (label == $FearHealthBar/FearLeftNb and currentValue <= 1) else str(currentValue) + " Phobies restantes.." if (label == $FearHealthBar/FearLeftNb and currentValue > 1) else str(currentValue)
+		label.text = str(currentValue % 10) if (label == $GUI/ScoreDie1/Score1) else "x" + str(currentValue) if (label == $GUI/MultDie/Mult) else str(currentValue) + "/" + str(fearMaxHealth) + " PV" if (label == $FearHealthBar/Health and not rule) else str(currentValue) + "/" + str(fearMaxHealth) + " PV" if (label == $FearHealthBar/Health and rule) else str(fearCurrentHealth) + "/" + str(currentValue) + " PV" if (label == $FearHealthBar/Health and not rule) else str(currentValue) + " Phobie restante.." if (label == $FearHealthBar/FearLeftNb and currentValue <= 1) else str(currentValue) + " Phobies restantes.." if (label == $FearHealthBar/FearLeftNb and currentValue > 1) else str(currentValue)
 		if isDie: label.modulate = Color(1.0,1.0,0.0) if (label.get_parent().data.augment[0] == "Or" and label.get_parent().data.augment[1] >= int(label.text)) else Color(0.360,0.825,1) if (label.get_parent().data.augment[0] == "Cristal" and label.get_parent().data.augment[1] >= int(label.text)) else Color(1.0,1.0,1.0)
 		currentValue += direction
+		if rule and ((fearMaxHealth != 90 and direction > 0) or (fearMaxHealth != 60 and direction < 0)): 
+			fearMaxHealth += direction
+			fearCurrentHealth += direction
 			
 		await wait(timeStep)
 
@@ -394,7 +398,7 @@ func shopAnimation():
 func revealFear(): # Intro de la Peur
 	
 	fearMaxHealth = 6 if (fearNum == 0) else 10 if (fearNum == 1) else 16 if (fearNum == 2) else 24 if (fearNum == 3) else 34 if (fearNum == 4) else 46 if (fearNum == 5) else 60
-	if allFears[fearNum]["Name"] == "Atychiphobie" and jimboCountdown != 1: fearMaxHealth = int(float(fearMaxHealth) * 1.5)
+	if allFears[fearNum]["Name"] == "Atychiphobie": fearMaxHealth = int(float(fearMaxHealth) * 1.5)
 	$FearHealthBar/Health.text = str(fearCurrentHealth) + "/" + str(fearMaxHealth) + "PV"
 	
 	await wait(0.2)
@@ -428,8 +432,29 @@ func revealFear(): # Intro de la Peur
 	
 	while $FearHealthBar/Health.text != str(fearMaxHealth) + "/" + str(fearMaxHealth) + " PV": await wait(0.1)
 	
+	if fearNum == 6:
+		if jimboCountdown != 1:
+			await wait(0.5)
+			switchFear()
+		else: jimboCountdown = 0
+		
 	await wait(1.2)
 	CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8) # Outro Camera
+	$World/RShortcut.show()
+
+func switchFear():
+	if fearNumD != 5: fearNumD += 1
+	else: fearNumD = 0
+	
+	await colorAnimation([$World/Lights/DoorLight, $World/Lights/RoomLight, $World/Lights/GameLight, $World/Lights/FearLight, $World/Lights/DiceLight, $World/Lights/PassiveLight, $World/Lights/CashLight], allFears[fearNumD]["Color"], 0.6)
+	await visibilityAnimation($Fear,"Hide","Modulate",5)
+	$Fear.texture = allFears[fearNumD]["Texture"]
+	await visibilityAnimation($Fear,"Show","Modulate",5)
+	
+	if allFears[fearNumD]["Name"] == "Atychiphobie": valueAnimation($FearHealthBar/Health, fearCurrentHealth, fearCurrentHealth+30, 0.4, true)
+	elif rollNum > 0: if allFears[fearNumD-1 if fearNumD != 0 else 5]["Name"] == "Atychiphobie": valueAnimation($FearHealthBar/Health, fearCurrentHealth, fearCurrentHealth-30, 0.4, true)
+	
+	allFears[6] = allFears[fearNumD]
 
 func createShop(): # Génère le Shop
 	shop["Blanks"].clear()  # Nettoyer, balayer, astiquer Kaz la toujou penpan
@@ -467,13 +492,10 @@ func createShop(): # Génère le Shop
 	
 	actualizeDicePrice()
 
-func switchFear():
-	pass
-
 func rollDice(): # Lance le(s) Dé(s)
 	buttonInGame["Roll"].Press("Roll")
 	
-	if dicePlayed == [] or (allFears[fearNum]["Name"] == "Agoraphobie" and len(dicePlayed) > 2 and jimboCountdown != 1): 
+	if dicePlayed == [] or (allFears[fearNum]["Name"] == "Agoraphobie" and len(dicePlayed) > 2 and (jimboCountdown != 1 or fearNum == 6)): 
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,0.0,0.0))
 		await wait(0.3)
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,1.0,1.0))
@@ -485,13 +507,13 @@ func rollDice(): # Lance le(s) Dé(s)
 	rolls.clear()
 	rollsSorted.clear()
 	score = 0
-	mult = 0 if (allFears[fearNum]["Name"] == "Koinophobie" and jimboCountdown != 1) else 1
+	mult = 0 if (allFears[fearNum]["Name"] == "Koinophobie" and (jimboCountdown != 1 or fearNum == 6)) else 1
 	comb = {}
 	
 	if $World/Boards/BottomLeft/Cellphone/PhoneScreen.visible: $World/Boards/BottomLeft/Cellphone/PhoneScreen.hide()
 	CameraTransition.transition_camera3D($Cameras/BalatroView, $Cameras/BRView, 0.5)
 	
-	if allFears[fearNum]["Name"] == "Nihilophobie" and rollNum % 2 == 1 and jimboCountdown != 1:
+	if allFears[fearNum]["Name"] == "Nihilophobie" and rollNum % 2 == 1 and (jimboCountdown != 1 or fearNum == 6):
 		for die in dicePlayed:
 			await wait(0.8)
 			diceInGame[die].PlayAnimation("Targeted", null)
@@ -556,15 +578,15 @@ func rollDice(): # Lance le(s) Dé(s)
 		await wait(0.4) # Intro Score & Mult
 		slideAnimation($GUI/ScoreDie1, "Décélération", "y", 32.5, 0, 30, 0.03)
 		slideAnimation($GUI/MultDie, "Décélération", "y", 32.5, 0, 30, 0.03)
-		$GUI/MultDie/Mult.text = "x0" if allFears[fearNum]["Name"] == "Koinophobie" and jimboCountdown != 1 else "x1"
+		$GUI/MultDie/Mult.text = "x0" if allFears[fearNum]["Name"] == "Koinophobie" and (jimboCountdown != 1 or fearNum == 6) else "x1"
 		
 		await wait(0.8) # Trie Affiché
 		await revealDice(diceSorted,0.05,0.4)
 		
-		if mult != 1 or (allFears[fearNum]["Name"] == "Koinophobie" and jimboCountdown != 1): # Animation Mult
+		if mult != 1 or (allFears[fearNum]["Name"] == "Koinophobie" and (jimboCountdown != 1 or fearNum == 6)): # Animation Mult
 			await slideAnimation($GUI/MultDie, "Décélération", "x", 18.05, 19.55, 6, 0.012)
 			await slideAnimation($GUI/MultDie, "Accélération", "x", 19.55, 18.05, 4, 0.008)
-			valueAnimation($GUI/MultDie/Mult, mult, 0 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and jimboCountdown != 1) else 1, 0.6)
+			valueAnimation($GUI/MultDie/Mult, mult, 0 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (jimboCountdown != 1 or fearNum == 6)) else 1, 0.6)
 			await valueAnimation($GUI/ScoreDie1/Score1,score,score*mult,0.8)
 			score *= mult
 		
@@ -580,6 +602,11 @@ func rollDice(): # Lance le(s) Dé(s)
 			valueAnimation($GUI/ScoreDie1/Score1, score, 0, 1)
 		
 		await valueAnimation($FearHealthBar/Health, fearCurrentHealth, fearCurrentHealth - score if (fearCurrentHealth - score >= 0) else 0, 0.4) # Animation Fear Health Bar
+		
+		#if allFears[fearNum]["Name"] == "Atychiphobie" and fearNum != 6:
+			#print(jimboCountdown)
+			#if jimboCountdown == 1: valueAnimation($FearHealthBar/Health, fearCurrentHealth, 6 if (fearNum == 0) else 10 if (fearNum == 1) else 16 if (fearNum == 2) else 24 if (fearNum == 3) else 34 if (fearNum == 4) else 46, 0.4, true)
+			#elif jimboCountdown == 0 and (fearMaxHealth == 6 or fearMaxHealth == 10 or fearMaxHealth == 16 or fearMaxHealth == 24 or fearMaxHealth == 34 or fearMaxHealth == 46 or fearMaxHealth == 60): valueAnimation($FearHealthBar/Health, fearCurrentHealth, int(float(fearCurrentHealth)*1.5), 0.4, true)
 		
 		await wait(0.3)
 		while ($GUI/ScoreDie10.position.y != 32.5 or $GUI/ScoreDie100.position.y != 32.5): await wait(0.1)
@@ -630,11 +657,19 @@ func rollDice(): # Lance le(s) Dé(s)
 		
 	await wait(0.2)
 	if fearCurrentHealth != 0:
-		if allFears[fearNum]["Name"] == "Peniaphobie" and jimboCountdown != 1 :
+		if allFears[fearNum]["Name"] == "Peniaphobie" and (jimboCountdown != 1 or fearNum == 6):
 			playerGold -= rollNum*2
 			#cashSound.play()
 			valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
+		
+		if fearNum == 6 and diceHand != []:
+			if jimboCountdown != 1:
+				await wait(0.2)
+				switchFear()
+				await wait(0.5)
+			else: jimboCountdown = 0
 		CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8)
+		$World/RShortcut.show()
 	
 		if diceHand == [] and fearCurrentHealth>0: gameOver()
 	else:
@@ -646,10 +681,12 @@ func rollDice(): # Lance le(s) Dé(s)
 			CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8)
 		else:
 			GameOverLayer.fade("In",Color(1.0,1.0,1.0))
+			while not Input.is_action_just_pressed("Select"): await wait(0.01)
+			get_tree().quit()
 
 func gameOver():
 	GameOverLayer.fade("In",allFears[fearNum]["Color"])
-	while not GameOverLayer.restart: await wait(0.1)
+	while not GameOverLayer.restart: await wait(0.05)
 	GameOverLayer.restart = false
 	
 	# INITIAILSATION
@@ -793,6 +830,7 @@ func _process(delta): # À chaque frame (delta)
 				if buttonInGame["Roll"] == target("Button"): 
 					if $Cameras/BalatroView.is_current(): 
 						rollDice()
+						$World/RShortcut.hide()
 			else:
 				if buttonInGame["Augment"] == target("Button"):
 					if diePlayedInShop == [] or playerGold < shop["Augment"]["Prix"] or (diePlayedInShop[0].augment[0].to_upper() != shop["Augment"]["Nom"] and diePlayedInShop[0].augment[0] != "Normales") or ((diePlayedInShop[0].augment[1] >= (19 if (diePlayedInShop[0].morph[0] == "R. Dechu") else len(diePlayedInShop[0].sides)-1)) and (shop["Augment"]["Nom"] == "OR" or shop["Augment"]["Nom"] == "VOID")) or ((diePlayedInShop[0].augment[1] >= (20 if (diePlayedInShop[0].morph[0] == "R. Dechu") else len(diePlayedInShop[0].sides))) and shop["Augment"]["Nom"] == "CRISTAL"):
@@ -846,7 +884,9 @@ func _process(delta): # À chaque frame (delta)
 	
 	if Input.is_action_just_pressed("Confirm"): # Si Espace est Pressé, Lance les Dés Joués
 		if $Cameras/BalatroView.is_current():
-			if not isShopping: rollDice()
+			if not isShopping:
+				rollDice()
+				$World/RShortcut.hide()
 			else:
 				if not diePlayedInShop == []:
 					moveDie(diePlayedInShop[0],diePlayedInShop,diceHand)
@@ -924,7 +964,7 @@ func _ready(): # Au lancement du jeu
 	buttonInGame["Sell"].InitializeButton(self, "SellButton")
 	
 	for fear in RNG(All["Encyclopedia"]["Fear"], "Dictionnary", 6): allFears.append(fear)
-	allFears.append({"Name":"Dicephobie","Text":"Peur des Dés,\nla forme ultime\nde vous peur","Color":Color(0.5,0.5,0.5),"Texture":dicephobiePNG})
+	allFears.append({"Name":"Dicephobie","Text":"Peur des Dés,\nla forme ultime\nde vos peurs\n\nEst-ce votre dernier\ncauchemar ?","Color":Color(0.5,0.5,0.5),"Texture":dicephobiePNG})
 	
 	# FIGHT
 	

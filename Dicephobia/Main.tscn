@@ -179,7 +179,7 @@ script = ExtResource("1_uu6xs")
 
 [node name="GoldSound" type="AudioStreamPlayer" parent="Sounds"]
 stream = ExtResource("2_20pc6")
-volume_db = 24.0
+volume_db = -10.0
 
 [node name="HolyGrenadeSound" type="AudioStreamPlayer" parent="Sounds"]
 stream = ExtResource("3_5vvyt")
@@ -260,10 +260,20 @@ skeleton = NodePath("")
 
 [node name="World" type="Node" parent="."]
 
-[node name="Shortcut" type="Label3D" parent="World"]
+[node name="TabShortcut" type="Label3D" parent="World"]
 transform = Transform3D(1.2, 0, 0, 0, -5.2453668e-08, 1.2, 0, -1.2, -5.2453668e-08, -11.05, -0.75, 8.5)
 outline_modulate = Color(1, 1, 1, 1)
 text = "Tab - Info
+"
+font_size = 60
+outline_size = 7
+vertical_alignment = 0
+
+[node name="RShortcut" type="Label3D" parent="World"]
+transform = Transform3D(1.2, 0, 0, 0, -5.2453668e-08, 1.2, 0, -1.2, -5.2453668e-08, -11.05, -0.75, 8.5)
+visible = false
+outline_modulate = Color(1, 1, 1, 1)
+text = "
 R - Abandon"
 font_size = 60
 outline_size = 7
