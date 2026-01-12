@@ -16,13 +16,14 @@ func fade(type: String, color: Color = Color(0,0,0)):
 		$GameOverLabel.modulate = color
 		$RightLogoDeath.modulate = color
 		$LeftLogoDeath.modulate = color
+		await get_tree().create_timer(0.2).timeout
 		$GameOverLabel.show()
 		$RightLogoDeath.show()
 		$LeftLogoDeath.show()
 		await get_tree().create_timer(1).timeout
 		$RestartButton.disabled = false
 		$FightBack.show()
-		await get_tree().create_timer(1).timeout
+		await get_tree().create_timer(0.75).timeout
 		if $FightBack.visible:
 			$QuitButton.disabled = false
 			$GiveUp.show()

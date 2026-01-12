@@ -1,16 +1,45 @@
-[gd_scene load_steps=59 format=3 uid="uid://bdq2y87nr2lih"]
+[gd_scene load_steps=88 format=3 uid="uid://bdq2y87nr2lih"]
 
 [ext_resource type="Script" uid="uid://b4vsv8bov1nyq" path="res://Main.gd" id="1_uu6xs"]
 [ext_resource type="PackedScene" uid="uid://bt78pru3b031i" path="res://models/Chambre.tscn" id="2_3dxm6"]
-[ext_resource type="AudioStream" uid="uid://cqmjygkcyj5nu" path="res://sons/goldSound.wav" id="2_20pc6"]
-[ext_resource type="AudioStream" uid="uid://bgatrkef110d1" path="res://sons/holyGrenade.wav" id="3_5vvyt"]
+[ext_resource type="AudioStream" uid="uid://c0djajm02lns6" path="res://audio/sfx/goldSound.wav" id="2_hhcpw"]
+[ext_resource type="AudioStream" uid="uid://yrp0o60augnf" path="res://audio/sfx/holyGrenadeSound.wav" id="3_devvj"]
 [ext_resource type="PackedScene" uid="uid://thopggowjqdd" path="res://models/Piggy bank.glb" id="3_lgr22"]
 [ext_resource type="PackedScene" uid="uid://cwvkmal120xkm" path="res://models/Cellphone.glb" id="4_3dxm6"]
-[ext_resource type="AudioStream" uid="uid://dl3dddfn5n1nc" path="res://sons/cashSound.wav" id="4_c6i3y"]
+[ext_resource type="AudioStream" uid="uid://dl3dddfn5n1nc" path="res://audio/sfx/cashSound.wav" id="4_mxvw5"]
 [ext_resource type="PackedScene" uid="uid://bdxkjfoe4afe7" path="res://prefabs/ButtonPrefab/ButtonPrefab.tscn" id="4_trn2v"]
+[ext_resource type="AudioStream" uid="uid://bdnrevlhb12o1" path="res://audio/sfx/dieDropSound.wav" id="4_xrxkg"]
+[ext_resource type="AudioStream" uid="uid://bqibsceko3vr2" path="res://audio/sfx/dieMoveSound.wav" id="5_40n85"]
 [ext_resource type="Texture2D" uid="uid://cf4oe8wlppt1r" path="res://icon.svg" id="5_fos0i"]
+[ext_resource type="AudioStream" uid="uid://qw3nwmusuivk" path="res://audio/sfx/balatroExplosionIntroSound.wav" id="5_j4qnp"]
 [ext_resource type="PackedScene" uid="uid://dldiqgsy7kq5x" path="res://models/Post-it.glb" id="5_lgr22"]
+[ext_resource type="AudioStream" uid="uid://duhe7k5ii5bxm" path="res://audio/sfx/d2RollSound.wav" id="5_oye8v"]
+[ext_resource type="AudioStream" uid="uid://l1hvtj1auoux" path="res://audio/sfx/d4RollSound.wav" id="6_40n85"]
+[ext_resource type="AudioStream" uid="uid://pwyccidtlg41" path="res://audio/sfx/balatroExplosionOutroSound.wav" id="6_fpfj3"]
+[ext_resource type="AudioStream" uid="uid://tardx58mm2my" path="res://audio/sfx/d6RollSound.wav" id="7_gb15f"]
+[ext_resource type="AudioStream" uid="uid://bn4vlac5cqjmc" path="res://audio/sfx/ultrakillCoinSound.wav" id="7_sc1dx"]
+[ext_resource type="AudioStream" uid="uid://7bxa5ituad1m" path="res://audio/sfx/ViegoUltSound.wav" id="8_fpfj3"]
+[ext_resource type="AudioStream" uid="uid://bdn2iy0k7j7eb" path="res://audio/sfx/d10RollSound.wav" id="8_sph85"]
 [ext_resource type="Texture2D" uid="uid://b385r4nnjosrb" path="res://images/placeHolder.svg" id="8_trn2v"]
+[ext_resource type="Texture2D" uid="uid://cm66bslvdu65" path="res://images/jimbo.png" id="9_5vvyt"]
+[ext_resource type="AudioStream" uid="uid://r5jgxy2ne11b" path="res://audio/sfx/d20RollSound.wav" id="9_o7g6l"]
+[ext_resource type="AudioStream" uid="uid://60y1fw367qoh" path="res://audio/sfx/gameOverSound.wav" id="9_sc1dx"]
+[ext_resource type="AudioStream" uid="uid://cjqr2dmg3oan1" path="res://audio/musics/FightMusic.mp3" id="10_3b0ty"]
+[ext_resource type="AudioStream" uid="uid://bujcgffpcx4b2" path="res://audio/sfx/VinylStopSound.wav" id="10_bg4s2"]
+[ext_resource type="AudioStream" uid="uid://bwmljifbmh180" path="res://audio/sfx/incomingFearSound.wav" id="10_xrxkg"]
+[ext_resource type="AudioStream" uid="uid://dyjhywkiqfv1s" path="res://audio/musics/TutorialMusic.mp3" id="11_bg4s2"]
+[ext_resource type="AudioStream" uid="uid://0pxdp4oti7cv" path="res://audio/sfx/nihilophobiaSound.mp3" id="11_hhcpw"]
+[ext_resource type="AudioStream" uid="uid://bbko51law1p7g" path="res://audio/musics/ShopMusic.mp3" id="12_hhcpw"]
+[ext_resource type="AudioStream" uid="uid://d2wfwgrnw7nu3" path="res://audio/musics/IntroMusic.mp3" id="13_mxvw5"]
+[ext_resource type="AudioStream" uid="uid://d4bnd8p5yiq5g" path="res://audio/musics/NihilophobieMusic.mp3" id="16_hhcpw"]
+[ext_resource type="AudioStream" uid="uid://1v0ycem3xm3i" path="res://audio/sfx/atychiphobieSound.wav" id="17_ny7u2"]
+[ext_resource type="AudioStream" uid="uid://bdqxowikh5ck" path="res://audio/sfx/CataptrophobieSound.wav" id="17_vi5kq"]
+[ext_resource type="AudioStream" uid="uid://c8omaw0l8qvvb" path="res://audio/sfx/koinophobieGoodSound.wav" id="19_x3yn0"]
+[ext_resource type="AudioStream" uid="uid://5jkhk3pksog5" path="res://audio/sfx/koinophobieBadSound.wav" id="20_1w2xm"]
+[ext_resource type="AudioStream" uid="uid://cf6sspik4wjby" path="res://audio/musics/WinMusic.mp3" id="24_gb15f"]
+[ext_resource type="AudioStream" uid="uid://b3u5vpcear2q8" path="res://audio/musics/AtychiphobieMusic.mp3" id="25_sph85"]
+[ext_resource type="AudioStream" uid="uid://w2gjtty1ohro" path="res://audio/musics/CataptrophobieMusic.mp3" id="26_o7g6l"]
+[ext_resource type="AudioStream" uid="uid://wx1qnhaont5f" path="res://audio/musics/AgoraphobieMusic.mp3" id="29_x3yn0"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_3dxm6"]
 size = Vector3(6, 6, 6)
@@ -175,19 +204,153 @@ size = Vector2(14, 1.5)
 [node name="Main" type="Node3D"]
 script = ExtResource("1_uu6xs")
 
-[node name="Sounds" type="Node" parent="."]
+[node name="Audio" type="Node" parent="."]
 
-[node name="GoldSound" type="AudioStreamPlayer" parent="Sounds"]
-stream = ExtResource("2_20pc6")
-volume_db = -10.0
+[node name="SoundEffect" type="Node" parent="Audio"]
 
-[node name="HolyGrenadeSound" type="AudioStreamPlayer" parent="Sounds"]
-stream = ExtResource("3_5vvyt")
-volume_db = -10.0
+[node name="GoldSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("2_hhcpw")
+volume_db = -14.0
+max_polyphony = 10
 
-[node name="CashSound" type="AudioStreamPlayer" parent="Sounds"]
-stream = ExtResource("4_c6i3y")
+[node name="CashSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("4_mxvw5")
+volume_db = -20.0
+max_polyphony = 10
+
+[node name="DieDropSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("4_xrxkg")
+volume_db = -20.0
+max_polyphony = 10
+
+[node name="DieMoveSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("5_40n85")
 volume_db = -10.0
+max_polyphony = 10
+
+[node name="D2RollSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("5_oye8v")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="D4RollSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("6_40n85")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="D6RollSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("7_gb15f")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="D10RollSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("8_sph85")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="D20RollSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("9_o7g6l")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="HolyGrSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("3_devvj")
+volume_db = -10.0
+max_polyphony = 10
+
+[node name="JimboIntroSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("5_j4qnp")
+max_polyphony = 10
+
+[node name="JimboOutroSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("6_fpfj3")
+max_polyphony = 10
+
+[node name="UltrakillSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("7_sc1dx")
+volume_db = -8.0
+max_polyphony = 10
+
+[node name="RDechuSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("8_fpfj3")
+volume_db = -10.0
+max_polyphony = 10
+
+[node name="IncomingFearSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("10_xrxkg")
+volume_db = -20.0
+max_polyphony = 100
+
+[node name="AtychiphobieSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("17_ny7u2")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="CataptrophobieSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("17_vi5kq")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="KoinophobieGoodSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("19_x3yn0")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="KoinophobieBadSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("20_1w2xm")
+volume_db = -5.0
+max_polyphony = 10
+
+[node name="NihilophobieSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("11_hhcpw")
+volume_db = -10.0
+max_polyphony = 10
+
+[node name="GameOverSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("9_sc1dx")
+volume_db = -5.0
+
+[node name="vinylStopSound" type="AudioStreamPlayer" parent="Audio/SoundEffect"]
+stream = ExtResource("10_bg4s2")
+volume_db = -14.0
+
+[node name="Music" type="Node" parent="Audio"]
+
+[node name="IntroMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("13_mxvw5")
+volume_db = 4.0
+
+[node name="TutoMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("11_bg4s2")
+volume_db = -15.0
+
+[node name="FightMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("10_3b0ty")
+volume_db = -22.0
+
+[node name="ShopMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("12_hhcpw")
+volume_db = -22.0
+
+[node name="WinMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("24_gb15f")
+volume_db = -22.0
+
+[node name="AgoraphobieMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("29_x3yn0")
+volume_db = -2.0
+
+[node name="AtychiphobieMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("25_sph85")
+volume_db = -16.0
+
+[node name="CataptrophobieMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("26_o7g6l")
+volume_db = -16.0
+
+[node name="NihilophobieMusic" type="AudioStreamPlayer" parent="Audio/Music"]
+stream = ExtResource("16_hhcpw")
+volume_db = -16.0
 
 [node name="GUI" type="Node" parent="."]
 
@@ -376,10 +539,10 @@ skeleton = NodePath("")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.035999775, 0.017999977, 0)
 mesh = SubResource("PlaneMesh_8mm7a")
 
-[node name="CommingSoon" type="Label3D" parent="World/Boards/Center/Shop/MemorieShop/Memorie"]
+[node name="ComingSoon" type="Label3D" parent="World/Boards/Center/Shop/MemorieShop/Memorie"]
 transform = Transform3D(0.89493436, -0.4461978, 0, -1.9503926e-08, -3.9118824e-08, 1, -0.4461978, -0.89493436, -4.371139e-08, 0.002, 0.103, -0.777)
 pixel_size = 0.02
-text = "Comming Soon
+text = "Coming Soon
 "
 
 [node name="MemorieCapture" type="MeshInstance3D" parent="World/Boards/Center/Shop/MemorieShop/Memorie"]
@@ -505,6 +668,11 @@ skeleton = NodePath("../TopRight")
 
 [node name="PostIt" parent="World/Boards/TopLeft" instance=ExtResource("5_lgr22")]
 transform = Transform3D(35, 0, 0, 0, -11.105663, 33.19133, 0, -33.19133, -11.105663, 0, 0.5, 0)
+
+[node name="Jimbo" type="Sprite3D" parent="World/Boards/TopLeft/PostIt"]
+transform = Transform3D(0.009000006, 0, 0, 0, 0.004015779, -0.008054406, 0, 0.008054406, 0.004015779, 0, 0.08576651, 0.058825422)
+visible = false
+texture = ExtResource("9_5vvyt")
 
 [node name="FearName" type="Label3D" parent="World/Boards/TopLeft/PostIt"]
 transform = Transform3D(1.0000001, 0, 0, 0, 0.94832367, -0.3173046, 0, 0.3173046, 0.94832367, -0.054285705, 0.04513003, 0.00018676743)

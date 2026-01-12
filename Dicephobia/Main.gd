@@ -18,7 +18,6 @@ const d4PNG = preload("res://images/Dice/Logo/D4.png")
 const d6PNG = preload("res://images/Dice/Logo/D6.png")
 const d10PNG = preload("res://images/Dice/Logo/D10.png")
 const d20PNG = preload("res://images/Dice/Logo/D20.png")
-
 const agoraphobiePNG = preload("res://images/Fears/Agoraphobie.png")
 const atychiphobiePNG = preload("res://images/Fears/Atychiphobie.png")
 const cataptrophobiePNG = preload("res://images/Fears/Cataptrophobie.png")
@@ -28,11 +27,46 @@ const peniaphobiePNG = preload("res://images/Fears/Peniaphobie.png")
 
 const dicephobiePNG = preload("res://images/Fears/Dicephobie.png")
 
-#SONS
+#SOUNDS
 
-@onready var goldSound: AudioStreamPlayer = $Sounds/GoldSound
-@onready var holyGrenadeSound: AudioStreamPlayer = $Sounds/HolyGrenadeSound
-@onready var cashSound: AudioStreamPlayer = $Sounds/CashSound
+@onready var goldSound: AudioStreamPlayer = $Audio/SoundEffect/GoldSound
+@onready var cashSound: AudioStreamPlayer = $Audio/SoundEffect/CashSound
+
+@onready var dieDropSound: AudioStreamPlayer = $Audio/SoundEffect/DieDropSound
+@onready var dieMoveSound: AudioStreamPlayer = $Audio/SoundEffect/DieMoveSound
+@onready var d2RollSound: AudioStreamPlayer = $Audio/SoundEffect/D2RollSound
+@onready var d4RollSound: AudioStreamPlayer = $Audio/SoundEffect/D4RollSound
+@onready var d6RollSound: AudioStreamPlayer = $Audio/SoundEffect/D6RollSound
+@onready var d10RollSound: AudioStreamPlayer = $Audio/SoundEffect/D10RollSound
+@onready var d20RollSound: AudioStreamPlayer = $Audio/SoundEffect/D20RollSound
+
+@onready var holyGrenadeSound: AudioStreamPlayer = $Audio/SoundEffect/HolyGrSound
+@onready var jimboIntroSound: AudioStreamPlayer = $Audio/SoundEffect/JimboIntroSound
+@onready var jimboOutroSound: AudioStreamPlayer = $Audio/SoundEffect/JimboOutroSound
+@onready var ultrakillSound: AudioStreamPlayer = $Audio/SoundEffect/UltrakillSound
+@onready var rdechuSound: AudioStreamPlayer = $Audio/SoundEffect/RDechuSound
+
+@onready var incomingFearSound: AudioStreamPlayer = $Audio/SoundEffect/IncomingFearSound
+@onready var atychiphobieSound: AudioStreamPlayer = $Audio/SoundEffect/AtychiphobieSound
+@onready var cataptrophobieSound: AudioStreamPlayer = $Audio/SoundEffect/CataptrophobieSound
+@onready var koinophobieGoodSound: AudioStreamPlayer = $Audio/SoundEffect/KoinophobieGoodSound
+@onready var koinophobieBadSound: AudioStreamPlayer = $Audio/SoundEffect/KoinophobieBadSound
+@onready var nihilophobieSound: AudioStreamPlayer = $Audio/SoundEffect/NihilophobieSound
+
+@onready var gameOverSound: AudioStreamPlayer = $Audio/SoundEffect/GameOverSound
+@onready var vinylStopSound: AudioStreamPlayer = $Audio/SoundEffect/vinylStopSound
+
+#MUSICS
+
+@onready var introMusic: AudioStreamPlayer = $Audio/Music/IntroMusic
+@onready var tutoMusic: AudioStreamPlayer = $Audio/Music/TutoMusic
+@onready var shopMusic: AudioStreamPlayer = $Audio/Music/ShopMusic
+@onready var winMusic: AudioStreamPlayer = $Audio/Music/WinMusic
+
+@onready var agoraphobieMusic: AudioStreamPlayer = $Audio/Music/AgoraphobieMusic
+@onready var atychiphobieMusic: AudioStreamPlayer = $Audio/Music/AtychiphobieMusic
+@onready var cataptrophobieMusic: AudioStreamPlayer = $Audio/Music/CataptrophobieMusic
+@onready var nihilophobieMusic: AudioStreamPlayer = $Audio/Music/NihilophobieMusic
 
 # ENCYCLOPEDIA
 
@@ -64,7 +98,7 @@ var All={
 		"Morph":
 			{
 			"Ultrakill":{"Nom":"Ultrakill","Prix":2, "NbFace":2 ,"Text":"Ajoute 1 au mult\ns'il tombe sur 2\nsinon il score 0"},
-			"Jimbo":{"Nom":"Jimbo","Prix":2, "NbFace":4 ,"Text":"Annule la règle\nde la peur pour le\nprochain lancer\ns'il tombe sur 4"},
+			"Jimbo":{"Nom":"Jimbo","Prix":2, "NbFace":4 ,"Text":"Annule une fois\nla règle s'il\ntombe sur 4"},
 			"R. Dechu":{"Nom":"R. Dechu","Prix":5,"NbFace":6 ,"Text":"Copie le résultat\ndu dé à sa gauche"},
 			"Holy Gr.":{"Nom":"Holy Gr.","Prix":1,"NbFace":10 ,"Text":"Ne tombe que\nsur 10 mais\ns'autodétruit"}
 			},
@@ -99,15 +133,14 @@ var diceSorted: Array = [] # Dé(s) en Jeu Trié(s)
 var rollNum: int = 0 # Nombre de Lancé ce Tour
 var rolls: Dictionary = {} # Dé(s) Lancé(s) -> Résultat(s)
 var rollsSorted: Array = [] # Résultat Trié dans l'ordre Croissant
-var jimboCountdown: int = 0 # Est ce que le dé jimbo est actif
-var viegoCrown = null # Copie du dé de gauche (morph viego le goat)
+var jimboActive: bool = false # Est ce que le dé jimbo est actif
 
 var score: int = 0 # Score
 var mult: int = 1 # Multiplicateur de Score
 var comb: Dictionary = {} # Main Obtenu
 
 @export var playerGold: int = 3 # Argent du Joueur
-var playerGoldIsIncreasing: bool = false
+
 
 # SHOP
 
@@ -177,7 +210,6 @@ func moveDie(dieToMove: DieData, fromDiceList: Array, toDiceList: Array): # Dép
 	elif dieStatus == "Bought":
 		fromDiceList[fromDiceList.find(dieToMove)] = null
 		playerGold -= dieToMove.price
-		#cashSound.play()
 		valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
 		diceInGame[dieToMove].ShowLabel("Price", "")
 	
@@ -198,42 +230,63 @@ func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
 		diceInGame[die].show()
 		if secUntilDrop != 0: await wait(secUntilDrop)
 		diceInGame[die].PlayAnimation("Untargeted", ["Targeted"])
+		if diceList != diceSorted: dieDropSound.play()
 		if diceList == diceSorted:
 			await wait(0.1)
 			diceInGame[die].ShowLabel("Score", str(1))
+			if allFears[fearNum]["Name"] != "Nihilophobie":
+				if len(die.sides) == 2: d2RollSound.play()
+				elif len(die.sides) == 4: d4RollSound.play()
+				elif len(die.sides) == 6: d6RollSound.play()
+				elif len(die.sides) == 10: d10RollSound.play()
+				elif len(die.sides) == 20: d2RollSound.play()
 			valueAnimation(diceInGame[die].get_node("ScoreLabel"),0 if die.morph[0] == "Ultrakill" else 1,rolls[die],0.2) 
 			valueAnimation($GUI/ScoreDie1/Score1,score,score+rolls[die]*2 if (die.augment[0] == "Cristal" and die.augment[1] >= rolls[die]) else score+rolls[die],0.8)
 			if die.augment[0] == "Or" and die.augment[1] >= rolls[die]: 
-				playerGoldIsIncreasing = true
 				valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,playerGold,playerGold+rolls[die],0.4)
-				playerGoldIsIncreasing = false
+			if die.morph[0] == "Ultrakill" and rolls[die] == 2:
+				mult += 1
+				if allFears[fearNum]["Name"] != "Nihilophobie": ultrakillSound.play()
+				$GUI/MultDie/Mult.text = "x" + str(mult)
+			if die.morph[0] == "R. Dechu" and die.morph[1] != null : 
+				if diceSorted.find(die) != 0: if allFears[fearNum]["Name"] != "Nihilophobie": rdechuSound.play()
+				die.morph[1] = null
 			if comb.has(diceList.find(die)):
 				await wait(0.2)
 				$GUI/Comb.text = comb[diceList.find(die)] + " !"
 				await slideAnimation($GUI/Comb, "Décélération", "x", 0, -2.5, 12, 0.012)
 				await slideAnimation($GUI/Comb, "Accélération", "x", -2.5, 9.75 if $GUI/Comb.text == "Suite !" else 9.4 if $GUI/Comb.text == "Carré !" else 8.1 if $GUI/Comb.text == "Brelan !" else 9.65 if $GUI/Comb.text == "Paire !" else 4.1 if $GUI/Comb.text == "Double Paire !" else -2.5, 8, 0.008)
 				if $GUI/Comb.text == "Paire !" or $GUI/Comb.text == "Double Paire !" or $GUI/Comb.text == "Carré !": 
-					if allFears[fearNum]["Name"] == "Cataptrophobie" and (jimboCountdown != 1 or fearNum == 6): mult = 0
-					else: mult += 2 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (jimboCountdown != 1 or fearNum == 6)) else 1
-				elif $GUI/Comb.text == "Brelan !": mult += 2 if (allFears[fearNum]["Name"] == "Cataptrophobie" and (jimboCountdown != 1 or fearNum == 6)) else 1
-				elif $GUI/Comb.text == "Suite !": mult += diceSorted.size() if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (jimboCountdown != 1 or fearNum == 6)) else diceSorted.size() - 1 
+					if allFears[fearNum]["Name"] == "Cataptrophobie" and (not jimboActive or fearNum == 6):
+						mult = 0
+						cataptrophobieSound.play()
+					else: mult += 1
+					if allFears[fearNum]["Name"] == "Cataptrophobie" and jimboActive and fearNum != 6: await unactiveJimbo()
+				elif $GUI/Comb.text == "Brelan !": mult += 2 if (allFears[fearNum]["Name"] == "Cataptrophobie" and (not jimboActive or fearNum == 6)) else 1
+				elif $GUI/Comb.text == "Suite !": mult += diceSorted.size() - 1 
 				$GUI/MultDie/Mult.text = "x" + str(mult)
 				$GUI/Comb.position.x = 0
 				$GUI/Comb.text = ""
 			score += rolls[die]*2 if (die.augment[0] == "Cristal" and die.augment[1] >= rolls[die]) else rolls[die] # Augments
 			playerGold += rolls[die] if (die.augment[0] == "Or" and die.augment[1] >= rolls[die]) else 0
 			
-			if die.morph[0] == "Jimbo" and rolls[die] == 4: jimboCountdown = 2 # Morphs
-			if die.morph[0] == "Jimbo" and jimboCountdown > 0: jimboCountdown -= 1
-			if die.morph[0] == "Ultrakill" and rolls[die] == 2:
-				mult += 1
-				$GUI/MultDie/Mult.text = "x" + str(mult)
-			if die.morph[0] == "R. Dechu" and die.morph[1] != null : die.morph[1] = null
+			if die.morph[0] == "Jimbo" and rolls[die] == 4: # Morphs
+				jimboActive = true
+				jimboIntroSound.play()
+				$World/Boards/TopLeft/PostIt/Jimbo.show()
+				if not allFears[fearNum]["Name"] == "Atychiphobie" or fearNum == 6:
+					visibilityAnimation($World/Boards/TopLeft/PostIt/Jimbo,"Show","Modulate",100)
+					floatYAnimation($World/Boards/TopLeft/PostIt/Jimbo,0.005)
+				else:
+					await visibilityAnimation($World/Boards/TopLeft/PostIt/Jimbo,"Show","Modulate",100)
+					unactiveJimbo()
+					valueAnimation($FearHealthBar/Health,fearCurrentHealth,6 if (fearNum == 0) else 10 if (fearNum == 1) else 16 if (fearNum == 2) else 24 if (fearNum == 3) else 34 if (fearNum == 4) else 46, 0.4, true)
+					await wait(0.5)
 		if secUntilNext != 0: await wait(secUntilNext)
 	if diceList == diceSorted:
 		for die in diceList:
 			if die.morph[0] == "Holy Gr.":
-				#holyGrenadeSound.play()
+				if allFears[fearNum]["Name"] != "Nihilophobie": holyGrenadeSound.play()
 				diceSorted.erase(die)
 				diceInGame[die].queue_free()
 				diceInGame.erase(die)
@@ -247,7 +300,7 @@ func applyMorph(die):
 	if diePlayedInShop == [] or diePlayedInShop[0].morph[0] != "Normale" or len(diePlayedInShop[0].sides) != len(targetedDie.sides): return # or diePlayedInShop[0].morph[0] == shop["Morphs"] à verifier
 	else:
 		playerGold -= die.price
-		#cashSound.play()
+		cashSound.play()
 		diePlayedInShop[0].morph[0] = die.morph[0]
 		if toUntargetDice.has(die): toUntargetDice.erase(die)
 		shop["Morphs"].erase(die)
@@ -373,12 +426,16 @@ func valueAnimation(label: Label3D, startValue: int, endValue: int, duration: fl
 			$FearHealthBar/FearHealth.scale.x = ratio
 			$FearHealthBar/FearHealth.position.x = 7 - ratio * 7
 		
-		#elif label == $World/Boards/BottomRight/PiggyBank/PlayerGold:if playerGoldIsIncreasing == true: goldSound.play()
+		elif label == $World/Boards/BottomRight/PiggyBank/PlayerGold:
+			if allFears[fearNum]["Name"] != "Nihilophobie":
+				if direction > 0 and currentValue != startValue: goldSound.play()
+				elif direction < 0 and currentValue == startValue:
+					cashSound.play()
 
 		label.text = str(currentValue % 10) if (label == $GUI/ScoreDie1/Score1) else "x" + str(currentValue) if (label == $GUI/MultDie/Mult) else str(currentValue) + "/" + str(fearMaxHealth) + " PV" if (label == $FearHealthBar/Health and not rule) else str(currentValue) + "/" + str(fearMaxHealth) + " PV" if (label == $FearHealthBar/Health and rule) else str(fearCurrentHealth) + "/" + str(currentValue) + " PV" if (label == $FearHealthBar/Health and not rule) else str(currentValue) + " Phobie restante.." if (label == $FearHealthBar/FearLeftNb and currentValue <= 1) else str(currentValue) + " Phobies restantes.." if (label == $FearHealthBar/FearLeftNb and currentValue > 1) else str(currentValue)
 		if isDie: label.modulate = Color(1.0,1.0,0.0) if (label.get_parent().data.augment[0] == "Or" and label.get_parent().data.augment[1] >= int(label.text)) else Color(0.360,0.825,1) if (label.get_parent().data.augment[0] == "Cristal" and label.get_parent().data.augment[1] >= int(label.text)) else Color(1.0,1.0,1.0)
 		currentValue += direction
-		if rule and ((fearMaxHealth != 90 and direction > 0) or (fearMaxHealth != 60 and direction < 0)): 
+		if rule and ((fearMaxHealth != (9 if (fearNum == 0) else 15 if (fearNum == 1) else 24 if (fearNum == 2) else 36 if (fearNum == 3) else 51 if (fearNum == 4) else 69 if (fearNum == 5) else 90) and direction > 0) or (fearMaxHealth != (6 if (fearNum == 0) else 10 if (fearNum == 1) else 16 if (fearNum == 2) else 24 if (fearNum == 3) else 34 if (fearNum == 4) else 46 if (fearNum == 5) else 60) and direction < 0)): 
 			fearMaxHealth += direction
 			fearCurrentHealth += direction
 			
@@ -393,9 +450,16 @@ func shopAnimation():
 			$World/Boards/Bottom.rotation_degrees.x += -10 if isShopping else 10
 			await wait(0.01)
 
+func unactiveJimbo():
+	jimboActive = false
+	if allFears[fearNum]["Name"] != "Nihilophobie": jimboOutroSound.play()
+	await visibilityAnimation($World/Boards/TopLeft/PostIt/Jimbo,"Hide","Modulate",60)
+	$World/Boards/TopLeft/PostIt/Jimbo.hide()
+
 # GAMEPLAY
 
 func revealFear(): # Intro de la Peur
+	incomingFearSound.play()
 	
 	fearMaxHealth = 6 if (fearNum == 0) else 10 if (fearNum == 1) else 16 if (fearNum == 2) else 24 if (fearNum == 3) else 34 if (fearNum == 4) else 46 if (fearNum == 5) else 60
 	if allFears[fearNum]["Name"] == "Atychiphobie": fearMaxHealth = int(float(fearMaxHealth) * 1.5)
@@ -426,6 +490,13 @@ func revealFear(): # Intro de la Peur
 	colorAnimation([$World/Lights/DoorLight, $World/Lights/RoomLight, $World/Lights/GameLight, $World/Lights/FearLight, $World/Lights/DiceLight, $World/Lights/PassiveLight, $World/Lights/CashLight], allFears[fearNum]["Color"], 1.2)
 	await visibilityAnimation($Fear,"Show","Modulate",5)
 	await slideAnimation($Fear, "Décélération", "y", -50, 5.5, 15, 0.03) # Intro Peur
+	if allFears[fearNum]["Name"] == "Agoraphobie":
+		agoraphobieMusic.play()
+	if allFears[fearNum]["Name"] == "Atychiphobie":
+		atychiphobieSound.play()
+		atychiphobieMusic.play()
+	elif allFears[fearNum]["Name"] == "Cataptrophobie": cataptrophobieMusic.play()
+	elif allFears[fearNum]["Name"] == "Nihilophobie": nihilophobieMusic.play()
 	
 	floatYAnimation($Fear, 1)
 	floatYAnimation($FearHealthBar, 0.3)
@@ -433,10 +504,10 @@ func revealFear(): # Intro de la Peur
 	while $FearHealthBar/Health.text != str(fearMaxHealth) + "/" + str(fearMaxHealth) + " PV": await wait(0.1)
 	
 	if fearNum == 6:
-		if jimboCountdown != 1:
+		if not jimboActive:
 			await wait(0.5)
 			switchFear()
-		else: jimboCountdown = 0
+		else: jimboActive = false
 		
 	await wait(1.2)
 	CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8) # Outro Camera
@@ -495,11 +566,12 @@ func createShop(): # Génère le Shop
 func rollDice(): # Lance le(s) Dé(s)
 	buttonInGame["Roll"].Press("Roll")
 	
-	if dicePlayed == [] or (allFears[fearNum]["Name"] == "Agoraphobie" and len(dicePlayed) > 2 and (jimboCountdown != 1 or fearNum == 6)): 
+	if dicePlayed == [] or (allFears[fearNum]["Name"] == "Agoraphobie" and len(dicePlayed) > 2 and (not jimboActive or fearNum == 6)): 
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,0.0,0.0))
 		await wait(0.3)
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,1.0,1.0))
 		return
+	elif len(dicePlayed) > 2 and allFears[fearNum]["Name"] == "Agoraphobie": await unactiveJimbo()
 	
 	targetedDie = null
 	
@@ -507,21 +579,21 @@ func rollDice(): # Lance le(s) Dé(s)
 	rolls.clear()
 	rollsSorted.clear()
 	score = 0
-	mult = 0 if (allFears[fearNum]["Name"] == "Koinophobie" and (jimboCountdown != 1 or fearNum == 6)) else 1
+	mult = 1
 	comb = {}
 	
 	if $World/Boards/BottomLeft/Cellphone/PhoneScreen.visible: $World/Boards/BottomLeft/Cellphone/PhoneScreen.hide()
 	CameraTransition.transition_camera3D($Cameras/BalatroView, $Cameras/BRView, 0.5)
 	
-	if allFears[fearNum]["Name"] == "Nihilophobie" and rollNum % 2 == 1 and (jimboCountdown != 1 or fearNum == 6):
+	if allFears[fearNum]["Name"] == "Nihilophobie" and rollNum % 2 == 1 and (not jimboActive or fearNum == 6):
 		for die in dicePlayed:
-			await wait(0.8)
+			await wait(0.6)
+			nihilophobieSound.play()
+			await wait(0.2)
 			diceInGame[die].PlayAnimation("Targeted", null)
 			await wait(0.05)
-			playerGoldIsIncreasing = true
 			playerGold += int(floor((float(die.price)/3.0)*2.0)) if (int(floor((float(die.price)/3.0)*2.0)) != 0) else 1
 			valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
-			playerGoldIsIncreasing = false
 			
 			if toUntargetDice.has(die): toUntargetDice.erase(die)
 			diceInGame[die].queue_free()
@@ -529,7 +601,10 @@ func rollDice(): # Lance le(s) Dé(s)
 			dicePlayed = []
 		await wait(0.5)
 	else:
-		for die in dicePlayed: if die.morph[0] == "R. Dechu" and dicePlayed.find(die) - 1 != -1 : die.morph[1] = dicePlayed[dicePlayed.find(die) - 1]
+		if allFears[fearNum]["Name"] == "Nihilophobie" and rollNum % 2 == 1 and jimboActive and fearNum != 6: unactiveJimbo()
+		
+		for die in dicePlayed: if die.morph[0] == "R. Dechu" and dicePlayed.find(die) - 1 != -1 :
+			die.morph[1] = dicePlayed[dicePlayed.find(die) - 1]
 		for die in dicePlayed: # Lancer Invisible
 			diceInGame[die].hide()
 			var RNGsides = die.sides.duplicate()
@@ -578,21 +653,32 @@ func rollDice(): # Lance le(s) Dé(s)
 		await wait(0.4) # Intro Score & Mult
 		slideAnimation($GUI/ScoreDie1, "Décélération", "y", 32.5, 0, 30, 0.03)
 		slideAnimation($GUI/MultDie, "Décélération", "y", 32.5, 0, 30, 0.03)
-		$GUI/MultDie/Mult.text = "x0" if allFears[fearNum]["Name"] == "Koinophobie" and (jimboCountdown != 1 or fearNum == 6) else "x1"
+		$GUI/MultDie/Mult.text = "x1"
 		
 		await wait(0.8) # Trie Affiché
 		await revealDice(diceSorted,0.05,0.4)
 		
-		if mult != 1 or (allFears[fearNum]["Name"] == "Koinophobie" and (jimboCountdown != 1 or fearNum == 6)): # Animation Mult
+		if comb == {} and allFears[fearNum]["Name"] == "Koinophobie" and (not jimboActive or fearNum == 6):
+			koinophobieBadSound.play()
+			for frame in range(mult):
+				await wait(0.2)
+				mult -= 1
+				$GUI/MultDie/Mult.text = "x" + str(mult)
+		if allFears[fearNum]["Name"] == "Koinophobie" and jimboActive and fearNum != 6: await unactiveJimbo() 
+		
+		
+		if mult != 1: # Animation Mult
 			await slideAnimation($GUI/MultDie, "Décélération", "x", 18.05, 19.55, 6, 0.012)
 			await slideAnimation($GUI/MultDie, "Accélération", "x", 19.55, 18.05, 4, 0.008)
-			valueAnimation($GUI/MultDie/Mult, mult, 0 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (jimboCountdown != 1 or fearNum == 6)) else 1, 0.6)
+			valueAnimation($GUI/MultDie/Mult, mult, 0 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (not jimboActive or fearNum == 6)) else 1, 0.6)
 			await valueAnimation($GUI/ScoreDie1/Score1,score,score*mult,0.8)
 			score *= mult
 		
 		if score != 0:
+			if allFears[fearNum]["Name"] == "Koinophobie": koinophobieGoodSound.play()
 			await wait(0.2) # Animation Score
 			while ((score >= 10 and $GUI/ScoreDie10.position.y != 0) or (score >= 100 and $GUI/ScoreDie100.position.y != 0)): await wait(0.1)
+			await wait(0.5)
 			if $GUI/ScoreDie100.position.y == 0: slideAnimation($GUI/ScoreDie100, "Décélération", "x", -28.85, -30.35, 6, 0.012) 
 			if $GUI/ScoreDie10.position.y == 0: slideAnimation($GUI/ScoreDie10, "Décélération", "x", -22.25, -23.75, 6, 0.012)
 			await slideAnimation($GUI/ScoreDie1, "Décélération", "x", -15.75, -17.25, 6, 0.012)
@@ -603,10 +689,9 @@ func rollDice(): # Lance le(s) Dé(s)
 		
 		await valueAnimation($FearHealthBar/Health, fearCurrentHealth, fearCurrentHealth - score if (fearCurrentHealth - score >= 0) else 0, 0.4) # Animation Fear Health Bar
 		
-		#if allFears[fearNum]["Name"] == "Atychiphobie" and fearNum != 6:
-			#print(jimboCountdown)
-			#if jimboCountdown == 1: valueAnimation($FearHealthBar/Health, fearCurrentHealth, 6 if (fearNum == 0) else 10 if (fearNum == 1) else 16 if (fearNum == 2) else 24 if (fearNum == 3) else 34 if (fearNum == 4) else 46, 0.4, true)
-			#elif jimboCountdown == 0 and (fearMaxHealth == 6 or fearMaxHealth == 10 or fearMaxHealth == 16 or fearMaxHealth == 24 or fearMaxHealth == 34 or fearMaxHealth == 46 or fearMaxHealth == 60): valueAnimation($FearHealthBar/Health, fearCurrentHealth, int(float(fearCurrentHealth)*1.5), 0.4, true)
+		if fearCurrentHealth != 0 and allFears[fearNum]["Name"] == "Atychiphobie" and ((fearNum == 0 and fearMaxHealth != 9) or (fearNum == 1 and fearMaxHealth != 15) or (fearNum == 2 and fearMaxHealth != 24) or (fearNum == 3 and fearMaxHealth != 32) or (fearNum == 4 and fearMaxHealth != 51) or (fearNum == 6 and fearMaxHealth != 69)):
+			await wait(0.5)
+			valueAnimation($FearHealthBar/Health, fearCurrentHealth, fearCurrentHealth + (3 if (fearNum == 0) else 5 if (fearNum == 1) else 10 if (fearNum == 2) else 12 if (fearNum == 3) else 17 if (fearNum == 4) else 23), 0.4, true)
 		
 		await wait(0.3)
 		while ($GUI/ScoreDie10.position.y != 32.5 or $GUI/ScoreDie100.position.y != 32.5): await wait(0.1)
@@ -641,9 +726,7 @@ func rollDice(): # Lance le(s) Dé(s)
 				diceInGame[die].PlayAnimation("Targeted", null)
 				await wait(0.05)
 				playerGold += int(floor((float(die.price)/3.0)*2.0)) if (int(floor((float(die.price)/3.0)*2.0)) != 0) else 1
-				playerGoldIsIncreasing = true
 				await valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.4)
-				playerGoldIsIncreasing = false
 				diceInGame[die].PlayAnimation("Untargeted", null)
 				await wait(0.5)
 			await spawnDice(diceInventory)
@@ -657,34 +740,55 @@ func rollDice(): # Lance le(s) Dé(s)
 		
 	await wait(0.2)
 	if fearCurrentHealth != 0:
-		if allFears[fearNum]["Name"] == "Peniaphobie" and (jimboCountdown != 1 or fearNum == 6):
+		if allFears[fearNum]["Name"] == "Peniaphobie" and (not jimboActive or fearNum == 6):
 			playerGold -= rollNum*2
-			#cashSound.play()
 			valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
+		elif allFears[fearNum]["Name"] == "Peniaphobie" and jimboActive and not fearNum == 6: unactiveJimbo()
 		
 		if fearNum == 6 and diceHand != []:
-			if jimboCountdown != 1:
+			if not jimboActive:
 				await wait(0.2)
 				switchFear()
 				await wait(0.5)
-			else: jimboCountdown = 0
+			else: jimboActive = false
 		CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8)
 		$World/RShortcut.show()
-	
+		
 		if diceHand == [] and fearCurrentHealth>0: gameOver()
 	else:
 		if fearNum != 7:
 			rollNum = 0
 			createShop()
+			if allFears[fearNum-1]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+			await wait(0.1)
+			vinylStopSound.play()
+			await wait(0.7)
+			shopMusic.play()
 			await shopAnimation()
-			await wait(0.5)
 			CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8)
 		else:
 			GameOverLayer.fade("In",Color(1.0,1.0,1.0))
+			if allFears[fearNum-1]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+			await wait(0.1)
+			vinylStopSound.play()
+			await wait(0.7)
+			winMusic.play()
 			while not Input.is_action_just_pressed("Select"): await wait(0.01)
 			get_tree().quit()
 
 func gameOver():
+	if allFears[fearNum-1]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
+	elif allFears[fearNum-1]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
+	elif allFears[fearNum-1]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
+	elif allFears[fearNum-1]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+	await wait(0.1)
+	gameOverSound.play()
 	GameOverLayer.fade("In",allFears[fearNum]["Color"])
 	while not GameOverLayer.restart: await wait(0.05)
 	GameOverLayer.restart = false
@@ -803,18 +907,25 @@ func _process(delta): # À chaque frame (delta)
 	if Input.is_action_just_pressed("Select"): # Si Click Gauche est Pressé, met en Jeu le Dé Ciblé
 		if targetedDie != null: 
 			if not isShopping:
-				if diceHand.has(targetedDie) and len(dicePlayed) < 4: moveDie(targetedDie, diceHand, dicePlayed) # Si le Dé peut être Joué, le Joue et lui Informe qu'il est Joué
-				elif dicePlayed.has(targetedDie) and len(diceHand) < 8: moveDie(targetedDie, dicePlayed, diceHand) # Si le Dé peut être Rangé, le Joue et lui Informe qu'il est Rangé
+				if diceHand.has(targetedDie) and len(dicePlayed) < 4:
+					moveDie(targetedDie, diceHand, dicePlayed) # Si le Dé peut être Joué, le Joue et lui Informe qu'il est Joué
+					if allFears[fearNum]["Name"] != "Nihilophobie": dieMoveSound.play()
+				elif dicePlayed.has(targetedDie) and len(diceHand) < 8:
+					moveDie(targetedDie, dicePlayed, diceHand) # Si le Dé peut être Rangé, le Joue et lui Informe qu'il est Rangé
+					if allFears[fearNum]["Name"] != "Nihilophobie": dieMoveSound.play()
 			else:
 				if diceHand.has(targetedDie) and len(diePlayedInShop) < 1:
 					moveDie(targetedDie, diceHand,diePlayedInShop)
+					dieMoveSound.play()
 					valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), int(floor((float(diePlayedInShop[0].price)/3.0)*2.0)) if (int(floor((float(diePlayedInShop[0].price)/3.0)*2.0)) != 0) else 1, 0.3) # Affiche le Prix de Vente qui correspond au 2/3 du Prix du Dé (arrondi inferieur prcq mechant devs bouuhh)
 				elif diceHand.has(targetedDie) and len(diePlayedInShop) == 1:
 					moveDie(diePlayedInShop[0],diePlayedInShop,diceHand)
 					moveDie(targetedDie,diceHand,diePlayedInShop)
+					dieMoveSound.play()
 					valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) if (floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) != 0) else 1, 0.3)
 				elif diePlayedInShop.has(targetedDie):
 					moveDie(targetedDie, diePlayedInShop,diceHand)
+					dieMoveSound.play()
 					valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), 0, 0.1)
 				elif shop["Blanks"].has(targetedDie) and (len(diceHand) + len(diePlayedInShop)) < 8: if playerGold >= targetedDie.price:
 					moveDie(targetedDie, shop["Blanks"], diceHand) # Si le Blank peut être Acheter, l'Achète et lui Informe qu'il est Rangé
@@ -842,7 +953,7 @@ func _process(delta): # À chaque frame (delta)
 						if diePlayedInShop[0].augment[0] == "Normales": diePlayedInShop[0].augment[0] = "Or" if (shop["Augment"]["Nom"] == "OR") else "Cristal" if (shop["Augment"]["Nom"] == "CRISTAL") else "Void"
 						diePlayedInShop[0].augment[1] += 2 if diePlayedInShop[0].augment[0] == "Or" else 1
 						playerGold -= shop["Augment"]["Prix"]
-						#cashSound.play()
+						cashSound.play()
 						valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.4)
 						actualizeDicePrice()
 						await wait(0.3)
@@ -850,14 +961,12 @@ func _process(delta): # À chaque frame (delta)
 				elif buttonInGame["Sell"] == target("Button"):
 					if not diePlayedInShop == [] and not diceHand == []:
 						buttonInGame["Sell"].Press("Sell")
-						playerGoldIsIncreasing = true
 						playerGold += floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) if (floor(int(floor((float(diePlayedInShop[0].price)/3.0)*2.0))) != 0) else 1
 						diceInGame[diePlayedInShop[0]].queue_free() # Supprime le Node
 						diceInGame.erase(diePlayedInShop[0]) # Supprime la Data 
 						diePlayedInShop = [] # Supprime le Fantôme du Dé (AAAH POURQUOI FAUT SUPPRIMER 3 TRUCS DIFFERENTS C CHIANT)
 						valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), 0, 0.1)
 						valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.4)
-						playerGoldIsIncreasing = false
 						actualizeDicePrice() 
 				elif buttonInGame["Next"] == target("Button"): 
 					if not diePlayedInShop == []:
@@ -880,6 +989,10 @@ func _process(delta): # À chaque frame (delta)
 								#diceInGame[dieData].queue_free()
 								#diceInGame.erase(dieData)
 						await shopAnimation()
+						shopMusic.stop()
+						await wait(0.1)
+						vinylStopSound.play()
+						await wait(0.7)
 						revealFear()
 	
 	if Input.is_action_just_pressed("Confirm"): # Si Espace est Pressé, Lance les Dés Joués
@@ -908,6 +1021,10 @@ func _process(delta): # À chaque frame (delta)
 							#diceInGame[dieData].queue_free()
 							#diceInGame.erase(dieData)
 					await shopAnimation()
+					shopMusic.stop()
+					await wait(0.1)
+					vinylStopSound.play()
+					await wait(0.7)
 					revealFear()
 	
 	if Input.is_action_pressed("QuickRestart") and $Cameras/BalatroView.is_current() and not isShopping and not GameOverLayer.isDying:
@@ -920,11 +1037,17 @@ func _process(delta): # À chaque frame (delta)
 	if Input.is_action_pressed("Tutorial") and GameOverLayer.slideNum == 4:
 		GameOverLayer.slideNum = 1
 		GameOverLayer.fade("In")
+		await wait(1.3)
+		if isShopping: shopMusic.stop()
+		tutoMusic.play()
 		for slide in range(3):
 			while not Input.is_action_just_pressed("Select"): await wait(0.01)
 			await wait(0.05)
 			GameOverLayer.nextSlide()
+		tutoMusic.stop()
+		if isShopping: shopMusic.play()
 		GameOverLayer.fade("Out")
+		tutoMusic.stop()
 	
 	# ADMIN INPUTS
 	
@@ -969,8 +1092,16 @@ func _ready(): # Au lancement du jeu
 	# FIGHT
 	
 	for slide in range(4):
+		if slide == 0:
+			introMusic.play()
+		elif slide == 1:
+			introMusic.stop()
+			tutoMusic.play()
 		while not Input.is_action_just_pressed("Select"): await wait(0.01)
 		await wait(0.05)
 		GameOverLayer.nextSlide()
+		
 	GameOverLayer.fade("Out")
+	tutoMusic.stop()
+	await wait(0.5)
 	revealFear()
