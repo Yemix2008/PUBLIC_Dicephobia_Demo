@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="PassiveData" load_steps=2 format=3 uid="uid://dqh2dom6rgsmj"]
-
-[ext_resource type="Script" uid="uid://bhevtxd6aqlsc" path="res://ressources/Passive/PassiveData.gd" id="1_uayav"]
-
-[resource]
-script = ExtResource("1_uayav")
-metadata/_custom_type_script = "uid://bhevtxd6aqlsc"

@@ -1,5 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://c3w70qpg24lfw"]
-
-[ext_resource type="PackedScene" uid="uid://2f1syqot1af8" path="res://models/Safe box.fbx" id="1_lqi65"]
-
-[node name="Safe box" instance=ExtResource("1_lqi65")]
