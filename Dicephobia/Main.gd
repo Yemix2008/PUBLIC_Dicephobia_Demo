@@ -47,26 +47,35 @@ const dicephobiePNG = preload("res://images/Fears/Dicephobie.png")
 @onready var rdechuSound: AudioStreamPlayer = $Audio/SoundEffect/RDechuSound
 
 @onready var incomingFearSound: AudioStreamPlayer = $Audio/SoundEffect/IncomingFearSound
-@onready var atychiphobieSound: AudioStreamPlayer = $Audio/SoundEffect/AtychiphobieSound
+@onready var fearHitSound: AudioStreamPlayer = $Audio/SoundEffect/FearHitSound
+@onready var fearLeavingSound: AudioStreamPlayer = $Audio/SoundEffect/FearLeavingSound
 @onready var cataptrophobieSound: AudioStreamPlayer = $Audio/SoundEffect/CataptrophobieSound
 @onready var koinophobieGoodSound: AudioStreamPlayer = $Audio/SoundEffect/KoinophobieGoodSound
 @onready var koinophobieBadSound: AudioStreamPlayer = $Audio/SoundEffect/KoinophobieBadSound
 @onready var nihilophobieSound: AudioStreamPlayer = $Audio/SoundEffect/NihilophobieSound
 
+@onready var errorSound: AudioStreamPlayer = $Audio/SoundEffect/ErrorSound
 @onready var gameOverSound: AudioStreamPlayer = $Audio/SoundEffect/GameOverSound
 @onready var vinylStopSound: AudioStreamPlayer = $Audio/SoundEffect/vinylStopSound
+
+@onready var flatScoreSound: AudioStreamPlayer = $Audio/Music/FlatScoreSound
+@onready var multScoreSound: AudioStreamPlayer = $Audio/SoundEffect/MultScoreSound
 
 #MUSICS
 
 @onready var introMusic: AudioStreamPlayer = $Audio/Music/IntroMusic
-@onready var tutoMusic: AudioStreamPlayer = $Audio/Music/TutoMusic
+#@onready var tutoMusic: AudioStreamPlayer = $Audio/Music/TutoMusic
 @onready var shopMusic: AudioStreamPlayer = $Audio/Music/ShopMusic
 @onready var winMusic: AudioStreamPlayer = $Audio/Music/WinMusic
 
 @onready var agoraphobieMusic: AudioStreamPlayer = $Audio/Music/AgoraphobieMusic
 @onready var atychiphobieMusic: AudioStreamPlayer = $Audio/Music/AtychiphobieMusic
 @onready var cataptrophobieMusic: AudioStreamPlayer = $Audio/Music/CataptrophobieMusic
+@onready var koinophobieMusic: AudioStreamPlayer = $Audio/Music/KoinophobieMusic
 @onready var nihilophobieMusic: AudioStreamPlayer = $Audio/Music/NihilophobieMusic
+@onready var peniaphobieMusic: AudioStreamPlayer = $Audio/Music/PeniaphobieMusic
+
+@onready var dicephobiaSong: AudioStreamPlayer = $Audio/Music/DicephobiaSong
 
 # ENCYCLOPEDIA
 
@@ -226,6 +235,7 @@ func moveDie(dieToMove: DieData, fromDiceList: Array, toDiceList: Array): # Dép
 	if dieStatus == "Own" and toDiceList != diceSorted: for dieData in fromDiceList: diceInGame[dieData].OrderDie(fromDiceList) # Réordonner
 
 func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
+	#if diceList == diceSorted and allFears[fearNum]["Name"] != "Nihilophobie": flatScoreSound.play()
 	for die in diceList:
 		diceInGame[die].show()
 		if secUntilDrop != 0: await wait(secUntilDrop)
@@ -248,6 +258,7 @@ func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
 				mult += 1
 				if allFears[fearNum]["Name"] != "Nihilophobie": ultrakillSound.play()
 				$GUI/MultDie/Mult.text = "x" + str(mult)
+				if allFears[fearNum]["Name"] != "Nihilophobie": multScoreSound.play()
 			if die.morph[0] == "R. Dechu" and die.morph[1] != null : 
 				if diceSorted.find(die) != 0: if allFears[fearNum]["Name"] != "Nihilophobie": rdechuSound.play()
 				die.morph[1] = null
@@ -262,9 +273,10 @@ func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
 						cataptrophobieSound.play()
 					else: mult += 1
 					if allFears[fearNum]["Name"] == "Cataptrophobie" and jimboActive and fearNum != 6: await unactiveJimbo()
-				elif $GUI/Comb.text == "Brelan !": mult += 2 if (allFears[fearNum]["Name"] == "Cataptrophobie" and (not jimboActive or fearNum == 6)) else 1
+				elif $GUI/Comb.text == "Brelan !": mult += 3 if (allFears[fearNum]["Name"] == "Cataptrophobie" and (not jimboActive or fearNum == 6)) else 1
 				elif $GUI/Comb.text == "Suite !": mult += diceSorted.size() - 1 
 				$GUI/MultDie/Mult.text = "x" + str(mult)
+				if allFears[fearNum]["Name"] != "Nihilophobie": multScoreSound.play()
 				$GUI/Comb.position.x = 0
 				$GUI/Comb.text = ""
 			score += rolls[die]*2 if (die.augment[0] == "Cristal" and die.augment[1] >= rolls[die]) else rolls[die] # Augments
@@ -287,17 +299,20 @@ func revealDice(diceList: Array, secUntilDrop: float, secUntilNext: float):
 		for die in diceList:
 			if die.morph[0] == "Holy Gr.":
 				if allFears[fearNum]["Name"] != "Nihilophobie": holyGrenadeSound.play()
+				await wait(0.1)
 				diceSorted.erase(die)
 				diceInGame[die].queue_free()
 				diceInGame.erase(die)
-		
+
 func actualizeDicePrice():
 	for dieData in diceInGame:
 		if playerGold < int(dieData.price): diceInGame[dieData].get_node("PriceLabel").modulate = Color(1.0, 0.0, 0.0) # Mets le Prix en Rouge si Trop Cher, ou en Jaune dans le cas Contraire
 		else: diceInGame[dieData].get_node("PriceLabel").modulate = Color(0.925, 0.918, 0.0)
 
 func applyMorph(die):
-	if diePlayedInShop == [] or diePlayedInShop[0].morph[0] != "Normale" or len(diePlayedInShop[0].sides) != len(targetedDie.sides): return # or diePlayedInShop[0].morph[0] == shop["Morphs"] à verifier
+	if diePlayedInShop == [] or diePlayedInShop[0].morph[0] != "Normale" or len(diePlayedInShop[0].sides) != len(targetedDie.sides):
+		if allFears[fearNum]["Name"] != "Nihilophobie": errorSound.play()
+		return # or diePlayedInShop[0].morph[0] == shop["Morphs"] à verifier
 	else:
 		playerGold -= die.price
 		cashSound.play()
@@ -427,7 +442,7 @@ func valueAnimation(label: Label3D, startValue: int, endValue: int, duration: fl
 			$FearHealthBar/FearHealth.position.x = 7 - ratio * 7
 		
 		elif label == $World/Boards/BottomRight/PiggyBank/PlayerGold:
-			if allFears[fearNum]["Name"] != "Nihilophobie":
+			if fearNum <= 6: if allFears[fearNum]["Name"] != "Nihilophobie":
 				if direction > 0 and currentValue != startValue: goldSound.play()
 				elif direction < 0 and currentValue == startValue:
 					cashSound.play()
@@ -490,13 +505,16 @@ func revealFear(): # Intro de la Peur
 	colorAnimation([$World/Lights/DoorLight, $World/Lights/RoomLight, $World/Lights/GameLight, $World/Lights/FearLight, $World/Lights/DiceLight, $World/Lights/PassiveLight, $World/Lights/CashLight], allFears[fearNum]["Color"], 1.2)
 	await visibilityAnimation($Fear,"Show","Modulate",5)
 	await slideAnimation($Fear, "Décélération", "y", -50, 5.5, 15, 0.03) # Intro Peur
-	if allFears[fearNum]["Name"] == "Agoraphobie":
-		agoraphobieMusic.play()
-	if allFears[fearNum]["Name"] == "Atychiphobie":
-		atychiphobieSound.play()
-		atychiphobieMusic.play()
-	elif allFears[fearNum]["Name"] == "Cataptrophobie": cataptrophobieMusic.play()
-	elif allFears[fearNum]["Name"] == "Nihilophobie": nihilophobieMusic.play()
+	if fearNum != 6:
+		if allFears[fearNum]["Name"] == "Agoraphobie": agoraphobieMusic.play()
+		elif allFears[fearNum]["Name"] == "Atychiphobie": atychiphobieMusic.play()
+		elif allFears[fearNum]["Name"] == "Cataptrophobie": cataptrophobieMusic.play()
+		elif allFears[fearNum]["Name"] == "Koinophobie": 
+			await wait(0.3)
+			koinophobieMusic.play()
+		elif allFears[fearNum]["Name"] == "Nihilophobie": nihilophobieMusic.play()
+		elif allFears[fearNum]["Name"] == "Peniaphobie": peniaphobieMusic.play()
+	else: dicephobiaSong.play()
 	
 	floatYAnimation($Fear, 1)
 	floatYAnimation($FearHealthBar, 0.3)
@@ -567,6 +585,7 @@ func rollDice(): # Lance le(s) Dé(s)
 	buttonInGame["Roll"].Press("Roll")
 	
 	if dicePlayed == [] or (allFears[fearNum]["Name"] == "Agoraphobie" and len(dicePlayed) > 2 and (not jimboActive or fearNum == 6)): 
+		if allFears[fearNum]["Name"] != "Nihilophobie": errorSound.play()
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,0.0,0.0))
 		await wait(0.3)
 		buttonInGame["Roll"].ShowLabel("Roll","ROLL",Color(1.0,1.0,1.0))
@@ -664,14 +683,17 @@ func rollDice(): # Lance le(s) Dé(s)
 				await wait(0.2)
 				mult -= 1
 				$GUI/MultDie/Mult.text = "x" + str(mult)
-		if allFears[fearNum]["Name"] == "Koinophobie" and jimboActive and fearNum != 6: await unactiveJimbo() 
+		if allFears[fearNum]["Name"] == "Koinophobie" and jimboActive and fearNum != 6: await unactiveJimbo()
+		#if allFears[fearNum]["Name"] != "Nihilophobie": flatScoreSound.stop()
 		
 		
 		if mult != 1: # Animation Mult
 			await slideAnimation($GUI/MultDie, "Décélération", "x", 18.05, 19.55, 6, 0.012)
 			await slideAnimation($GUI/MultDie, "Accélération", "x", 19.55, 18.05, 4, 0.008)
 			valueAnimation($GUI/MultDie/Mult, mult, 0 if (allFears[fearNum]["Name"] == "Koinophobie" and mult == 0 and (not jimboActive or fearNum == 6)) else 1, 0.6)
+			#if allFears[fearNum]["Name"] != "Nihilophobie": flatScoreSound.play()
 			await valueAnimation($GUI/ScoreDie1/Score1,score,score*mult,0.8)
+			#if allFears[fearNum]["Name"] != "Nihilophobie": flatScoreSound.stop()
 			score *= mult
 		
 		if score != 0:
@@ -685,6 +707,7 @@ func rollDice(): # Lance le(s) Dé(s)
 			if $GUI/ScoreDie100.position.y == 0: slideAnimation($GUI/ScoreDie100, "Accélération", "x", -30.35, -28.85, 4, 0.008)
 			if $GUI/ScoreDie10.position.y == 0: slideAnimation($GUI/ScoreDie10, "Accélération", "x", -23.75, -22.25, 4, 0.008)
 			await slideAnimation($GUI/ScoreDie1, "Accélération", "x", -17.25, -15.75, 4, 0.008)
+			if allFears[fearNum]["Name"] != "Nihilophobie": fearHitSound.play()
 			valueAnimation($GUI/ScoreDie1/Score1, score, 0, 1)
 		
 		await valueAnimation($FearHealthBar/Health, fearCurrentHealth, fearCurrentHealth - score if (fearCurrentHealth - score >= 0) else 0, 0.4) # Animation Fear Health Bar
@@ -700,6 +723,7 @@ func rollDice(): # Lance le(s) Dé(s)
 		
 		await wait(1) 
 		if fearCurrentHealth == 0: # Outro Fear Si Fear Morte
+			fearLeavingSound.play()
 			$FearHealthBar/Health.text = ""
 			visibilityAnimation($FearHealthBar,"Hide","Material",10)
 			await visibilityAnimation($Fear,"Hide","Modulate",75)
@@ -754,7 +778,8 @@ func rollDice(): # Lance le(s) Dé(s)
 		CameraTransition.transition_camera3D($Cameras/BRView, $Cameras/BalatroView, 0.8)
 		$World/RShortcut.show()
 		
-		if diceHand == [] and fearCurrentHealth>0: gameOver()
+		if diceHand == [] and fearCurrentHealth>0:
+			gameOver()
 	else:
 		if fearNum != 7:
 			rollNum = 0
@@ -762,7 +787,9 @@ func rollDice(): # Lance le(s) Dé(s)
 			if allFears[fearNum-1]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
 			elif allFears[fearNum-1]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
 			elif allFears[fearNum-1]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Koinophobie": koinophobieMusic.stop()
 			elif allFears[fearNum-1]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Peniaphobie": peniaphobieMusic.stop()
 			await wait(0.1)
 			vinylStopSound.play()
 			await wait(0.7)
@@ -774,7 +801,9 @@ func rollDice(): # Lance le(s) Dé(s)
 			if allFears[fearNum-1]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
 			elif allFears[fearNum-1]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
 			elif allFears[fearNum-1]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Koinophobie": koinophobieMusic.stop()
 			elif allFears[fearNum-1]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+			elif allFears[fearNum-1]["Name"] == "Peniaphobie": peniaphobieMusic.stop()
 			await wait(0.1)
 			vinylStopSound.play()
 			await wait(0.7)
@@ -783,11 +812,17 @@ func rollDice(): # Lance le(s) Dé(s)
 			get_tree().quit()
 
 func gameOver():
-	if allFears[fearNum-1]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
-	elif allFears[fearNum-1]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
-	elif allFears[fearNum-1]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
-	elif allFears[fearNum-1]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+	if fearNum != 6:
+		if allFears[fearNum]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
+		elif allFears[fearNum]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
+		elif allFears[fearNum]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
+		elif allFears[fearNum]["Name"] == "Koinophobie": koinophobieMusic.stop()
+		elif allFears[fearNum]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+		elif allFears[fearNum]["Name"] == "Peniaphobie": peniaphobieMusic.stop()
+	else: dicephobiaSong.stop()
 	await wait(0.1)
+	vinylStopSound.play()
+	await wait(0.7)
 	gameOverSound.play()
 	GameOverLayer.fade("In",allFears[fearNum]["Color"])
 	while not GameOverLayer.restart: await wait(0.05)
@@ -913,6 +948,7 @@ func _process(delta): # À chaque frame (delta)
 				elif dicePlayed.has(targetedDie) and len(diceHand) < 8:
 					moveDie(targetedDie, dicePlayed, diceHand) # Si le Dé peut être Rangé, le Joue et lui Informe qu'il est Rangé
 					if allFears[fearNum]["Name"] != "Nihilophobie": dieMoveSound.play()
+				else: if allFears[fearNum]["Name"] != "Nihilophobie": errorSound.play()
 			else:
 				if diceHand.has(targetedDie) and len(diePlayedInShop) < 1:
 					moveDie(targetedDie, diceHand,diePlayedInShop)
@@ -934,7 +970,8 @@ func _process(delta): # À chaque frame (delta)
 				if shop["Morphs"].has(targetedDie) : if playerGold >= targetedDie.price: 
 					applyMorph(targetedDie)
 					valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.3)
-					actualizeDicePrice() 
+					actualizeDicePrice()
+				else: if allFears[fearNum]["Name"] != "Nihilophobie": errorSound.play()
 		
 		if target("Button") != null :
 			if not isShopping:
@@ -945,6 +982,7 @@ func _process(delta): # À chaque frame (delta)
 			else:
 				if buttonInGame["Augment"] == target("Button"):
 					if diePlayedInShop == [] or playerGold < shop["Augment"]["Prix"] or (diePlayedInShop[0].augment[0].to_upper() != shop["Augment"]["Nom"] and diePlayedInShop[0].augment[0] != "Normales") or ((diePlayedInShop[0].augment[1] >= (19 if (diePlayedInShop[0].morph[0] == "R. Dechu") else len(diePlayedInShop[0].sides)-1)) and (shop["Augment"]["Nom"] == "OR" or shop["Augment"]["Nom"] == "VOID")) or ((diePlayedInShop[0].augment[1] >= (20 if (diePlayedInShop[0].morph[0] == "R. Dechu") else len(diePlayedInShop[0].sides))) and shop["Augment"]["Nom"] == "CRISTAL"):
+						if allFears[fearNum]["Name"] != "Nihilophobie": errorSound.play()
 						buttonInGame["Augment"].ShowLabel("Augment",shop["Augment"]["Nom"],Color(0.5, 0.5, 0.5))
 						await wait(0.3)
 						buttonInGame["Augment"].ShowLabel("Augment",shop["Augment"]["Nom"],Color(1.0,1.0,1.0))
@@ -968,6 +1006,7 @@ func _process(delta): # À chaque frame (delta)
 						valueAnimation(buttonInGame["Sell"].get_node("SellButton/LabelPrice"), int(buttonInGame["Sell"].get_node("SellButton/LabelPrice").text), 0, 0.1)
 						valueAnimation($World/Boards/BottomRight/PiggyBank/PlayerGold,int($World/Boards/BottomRight/PiggyBank/PlayerGold.text),playerGold,0.4)
 						actualizeDicePrice() 
+					else: if allFears[fearNum]["Name"] != "Nihilophobie": errorSound.play()
 				elif buttonInGame["Next"] == target("Button"): 
 					if not diePlayedInShop == []:
 						moveDie(diePlayedInShop[0],diePlayedInShop,diceHand)
@@ -1038,16 +1077,29 @@ func _process(delta): # À chaque frame (delta)
 		GameOverLayer.slideNum = 1
 		GameOverLayer.fade("In")
 		await wait(1.3)
-		if isShopping: shopMusic.stop()
-		tutoMusic.play()
+		if fearNum != 6:
+			if isShopping: shopMusic.stop()
+			elif allFears[fearNum]["Name"] == "Agoraphobie": agoraphobieMusic.stop()
+			elif allFears[fearNum]["Name"] == "Atychiphobie": atychiphobieMusic.stop()
+			elif allFears[fearNum]["Name"] == "Cataptrophobie": cataptrophobieMusic.stop()
+			elif allFears[fearNum]["Name"] == "Koinophobie": koinophobieMusic.stop()
+			elif allFears[fearNum]["Name"] == "Nihilophobie": nihilophobieMusic.stop()
+			elif allFears[fearNum]["Name"] == "Peniaphobie": peniaphobieMusic.stop()
+			dicephobiaSong.play()
 		for slide in range(3):
 			while not Input.is_action_just_pressed("Select"): await wait(0.01)
 			await wait(0.05)
 			GameOverLayer.nextSlide()
-		tutoMusic.stop()
-		if isShopping: shopMusic.play()
+		if fearNum != 6:
+			dicephobiaSong.stop()
+			if isShopping: shopMusic.play()
+			elif allFears[fearNum]["Name"] == "Agoraphobie": agoraphobieMusic.play()
+			elif allFears[fearNum]["Name"] == "Atychiphobie": atychiphobieMusic.play()
+			elif allFears[fearNum]["Name"] == "Cataptrophobie": cataptrophobieMusic.play()
+			elif allFears[fearNum]["Name"] == "Koinophobie": koinophobieMusic.play()
+			elif allFears[fearNum]["Name"] == "Nihilophobie": nihilophobieMusic.play()
+			elif allFears[fearNum]["Name"] == "Peniaphobie": peniaphobieMusic.play()
 		GameOverLayer.fade("Out")
-		tutoMusic.stop()
 	
 	# ADMIN INPUTS
 	
@@ -1096,12 +1148,12 @@ func _ready(): # Au lancement du jeu
 			introMusic.play()
 		elif slide == 1:
 			introMusic.stop()
-			tutoMusic.play()
-		while not Input.is_action_just_pressed("Select"): await wait(0.01)
+			dicephobiaSong.play()
+		while not Input.is_action_just_pressed("Select"): await wait(0.005)
 		await wait(0.05)
 		GameOverLayer.nextSlide()
 		
 	GameOverLayer.fade("Out")
-	tutoMusic.stop()
+	dicephobiaSong.stop()
 	await wait(0.5)
 	revealFear()

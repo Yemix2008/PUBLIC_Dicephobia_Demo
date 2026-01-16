@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://7476nldpcwex" path="res://animation/gameOverLayer.gd" id="1_ujfv8"]
 [ext_resource type="Texture2D" uid="uid://dx4m58n70365r" path="res://images/icon.png" id="2_cmeym"]
-[ext_resource type="Texture2D" uid="uid://beygfoqhvlmhl" path="res://images/Tutorial/Lancer.png" id="3_vkfac"]
+[ext_resource type="Texture2D" uid="uid://bimj0fkb7035t" path="res://images/Tutorial/Lancer.png" id="3_vkfac"]
 [ext_resource type="Texture2D" uid="uid://jpgktnpq48lh" path="res://images/Tutorial/Scorer.png" id="4_1p4p8"]
 [ext_resource type="Texture2D" uid="uid://xx5mif671cvo" path="res://images/Tutorial/Acheter.png" id="5_tirmx"]
 
@@ -233,7 +233,7 @@ offset_right = 1168.0004
 offset_bottom = 635.0
 scale = Vector2(1.5, 1.5)
 text = "La nuit tombe et vos yeux se ferment, le sommeil arrive…
-seulement... des peurs que vous croyez oubliées ressurgissent.
+seulement... des peurs que vous croyiez oubliées ressurgissent.
 
 Ici les phobies ne murmurent pas, elles imposent leurs règles,
 déforment la réalité et testent votre volonté de vous réveiller.
@@ -254,7 +254,7 @@ offset_top = 788.0
 offset_right = 421.0
 offset_bottom = 932.0
 scale = Vector2(1.5, 1.5)
-text = "Un Jeu développer par..
+text = "Un Jeu développé par..
 Alexandre KERMEL
 Diego GOMEZ
 Gianni SACCOCIO
